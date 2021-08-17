@@ -29,7 +29,7 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
   /* Available at first(both of Angela & Luca) */
   uint256 public beginAmount = 300000 * (10**18);
   /* the address of the token contract */
-	IERC20 public dataGen;
+  IERC20 public dataGen;
   /* the address of the Angela's wallet */
   address public aWallet;
   /* the address of the Luca's wallet */
@@ -74,7 +74,7 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
         dataGen.transfer(lWallet, otherHalf);
       }
     }
-	}
+  }
 
   function firstRelease() private {
     require(dataGen.balanceOf(address(this)) > rcfAmount, "Beginning amount already released to co-founders");
