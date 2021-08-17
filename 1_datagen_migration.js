@@ -1,9 +1,23 @@
 const DataGen = artifacts.require("DataGen");
 const RetailPrivateSale = artifacts.require("RetailPrivateSale");
 const VCPrivateSale = artifacts.require("VCPrivateSale");
+const ReservedPool = artifacts.require("ReservedPool");
+const CoFounderPool = artifacts.require("CoFounderPool");
 
-module.exports = function (deployer) {
-  deployer.deploy(DataGen);
-  deployer.deploy(RetailPrivateSale);
-  deployer.deploy(VCPrivateSale);
+//Need to change when the contract is being deployed.
+const companyWallet = "";
+//Angela & Luca's wallet
+const aWallet = "";
+const lWallet = "";
+
+module.exports = async function (deployer) {
+  await deployer.deploy(DataGen);
+  const transaction = await web3.eth.getTransaction(DataGen.transactionHash);
+  const deployedBlock = await web3.eth.getBlock(transaction.blockNumber);
+  const deployedTime = deployedBlock.timestamp;
+    
+  await deployer.deploy(RetailPrivateSale);
+  await deployer.deploy(VCPrivateSale);
+  await deployer.deploy(ReservedPool, DataGen.address, companyWallet);
+  await deployer.deploy(CoFounderPool, DataGen.address, aWallet, lWallet, deployedTime);
 };
