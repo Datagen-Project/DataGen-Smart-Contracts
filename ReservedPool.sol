@@ -2,7 +2,7 @@
 
 /**
  * B-Datagray Reserved Pool
- * Tokens inside this smart contract: 1,500,500.00 #DG
+ * Tokens inside this smart contract: 1,500,000.00 #DG
  * 100% locked until 21st December 2023
  * 750,000.00 #DGs will be released between 21st December 2023 and 15th December 2024, releasing them in 12 events, one every 30 days.
  * Other 750,000.00 #DGs will be locked in the Reserved Pool and from 15th December 2024, releasing them in 24 events, one every 30 days.
