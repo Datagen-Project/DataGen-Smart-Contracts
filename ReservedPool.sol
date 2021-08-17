@@ -27,7 +27,7 @@ contract ReservedPool is Ownable, ReentrancyGuard {
   /* Second release start time */
   uint256 public srStart = 1734220800;
   /* the address of the token contract */
-	IERC20 public dataGen;
+  IERC20 public dataGen;
   /* the address of the company wallet */
   address public companyWallet;
 
