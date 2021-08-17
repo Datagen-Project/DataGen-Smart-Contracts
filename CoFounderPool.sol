@@ -109,8 +109,8 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
   }
 
   function checkFunds() public view returns (uint256) {
-		return dataGen.balanceOf(address(this));
-	}
+    return dataGen.balanceOf(address(this));
+  }
 
   fallback() external payable {
   }
