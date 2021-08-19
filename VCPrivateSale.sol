@@ -11,7 +11,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     /* the maximum amount of tokens to be sold */
-	uint256 public maxGoal = 2350000 * (10**20);
+	uint256 public maxGoal = 2350000 * (10**18);
 	/* how much has been raised by retail investors (in USDC) */
 	uint256 public amountRaisedUSDC;
 	/* how much has been raised by retail investors (in #DG) */
@@ -81,32 +81,32 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
      */
     function invest(uint256 amountDG) external {
 		require(presaleClosed == false && block.timestamp >= startTime && block.timestamp < endTime, "Presale is closed");
-		require(amountDG >= 20000 * (10 ** 20), "Fund is less than 20.000,00 DGT");
-		require(amountDG <= 2350000 * (10 ** 20), "Fund is more than 2.350.000,00 DGT");
+		require(amountDG >= 20000 * (10 ** 18), "Fund is less than 20.000,00 DGT");
+		require(amountDG <= 2350000 * (10 ** 18), "Fund is more than 2.350.000,00 DGT");
 
 		uint256 amountUSDC;
 		
 		/* the amount of the first discounted tokens */
-		uint256 discountLimit1 = 300000 * (10**20);
+		uint256 discountLimit1 = 300000 * (10**18);
 
 		/* the amount of the first discounted tokens */
-		uint256 discountLimit2 = 1300000 * (10**20);
+		uint256 discountLimit2 = 1300000 * (10**18);
 
 		if (balanceOfDG[msg.sender].add(amountDG) <= discountLimit1) {
-			amountUSDC = amountDG.mul(price).div(10**20);
+			amountUSDC = amountDG.mul(price).div(10**18);
 		} else if (balanceOfDG[msg.sender].add(amountDG) <= discountLimit2) {
 			uint256 amountDG1 = discountLimit1.sub(balanceOfDG[msg.sender]);
 			uint256 amountDG2 = amountDG.sub(amountDG1);
-			uint256 amountUSDC1 = amountDG1.mul(price).div(10**20);
+			uint256 amountUSDC1 = amountDG1.mul(price).div(10**18);
 			price = 9 * (10**5);
-			uint256 amountUSDC2 = amountDG2.mul(price).div(10**20);
+			uint256 amountUSDC2 = amountDG2.mul(price).div(10**18);
 			amountUSDC = amountUSDC1 + amountUSDC2;
 		} else {
 			uint256 amountDG1 = discountLimit2.sub(balanceOfDG[msg.sender]);
 			uint256 amountDG2 = amountDG.sub(amountDG1);
-			uint256 amountUSDC1 = amountDG1.mul(price).div(10**20);
+			uint256 amountUSDC1 = amountDG1.mul(price).div(10**18);
 			price = 11 * (10**5);
-			uint256 amountUSDC2 = amountDG2.mul(price).div(10**20);
+			uint256 amountUSDC2 = amountDG2.mul(price).div(10**18);
 			amountUSDC = amountUSDC1 + amountUSDC2;
 		}
 
