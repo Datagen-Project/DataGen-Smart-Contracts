@@ -11,7 +11,7 @@ contract DataGen is Ownable, IERC20 {
     mapping (address => mapping (address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
-    uint256 private _maxSupply = 30000000 * (10 ** 20);
+    uint256 private _maxSupply = 30000000 * (10 ** 18);
 
     string private _name="DataGen";
     string private _symbol="#DG";
@@ -19,7 +19,7 @@ contract DataGen is Ownable, IERC20 {
     /**
      * @dev Sets the values for {name} and {symbol}.
      *
-     * The defaut value of {decimals} is 20. To select a different value for
+     * The defaut value of {decimals} is 18. To select a different value for
      * {decimals} you should overload it.
      *
      * All three of these values are immutable: they can only be set once during
@@ -27,8 +27,8 @@ contract DataGen is Ownable, IERC20 {
      */
     constructor () {
         // Initial Minting to Owner
-        _balances[msg.sender] = 15000000 * (10 ** 20);
-        _totalSupply = 15000000 * (10 ** 20);
+        _balances[msg.sender] = 15000000 * (10 ** 18);
+        _totalSupply = 15000000 * (10 ** 18);
     }
 
     /**
@@ -60,7 +60,7 @@ contract DataGen is Ownable, IERC20 {
      * {IERC20-balanceOf} and {IERC20-transfer}.
      */
     function decimals() external pure returns (uint8) {
-        return 20;
+        return 18;
     }
 
     /**
