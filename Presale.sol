@@ -11,7 +11,7 @@ contract Presale is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
 	/* the maximum amount of tokens to be sold */
-	uint256 public maxGoal = 30000000 * (10**20);
+	uint256 public maxGoal = 30000000 * (10**18);
 	/* how much has been raised by crowdale (in ETH) */
 	uint256 public amountRaised;
 	/* how much has been raised by crowdale (in PAYR) */
