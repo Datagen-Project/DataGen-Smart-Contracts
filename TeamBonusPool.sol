@@ -3,13 +3,9 @@
 /**
  * B-Datagray Team bonus remuration Pool
  * Tokens inside this smart contract: 300,000.00 #DG
- * Tokens will be locked until 1st of February 2022.
+ * Tokens will be locked until 28th of February 2022.
  * Then is released in 10 equal release events (in each of them 10% of the liquidity is made available
  * for withdrawal), one every 30 days.
- * If the transfer (to some team members) is done after 1st of February 2022, 10% of  the transferred
- * amount is withdrawable right after the transfer and the rest is anyway unlocked at a pace of 
- * 10% every 30 days (so, for example, if a transfer is made on 1st of March 2022, 10% is withdrawable
- * right-after and other 10% every 30 days after that moment).
  */
 
 pragma solidity ^0.8.0;
@@ -24,8 +20,8 @@ contract TeamBonusPool is Ownable, ReentrancyGuard {
   
   /* Total token amount in the Bonus Pool */
   uint256 public totalAmount = 300000 * (10**18);
-  /* Lock time 1st of Feburary 2022 GMT Timezone */
-  uint256 public lockTime = 1643673600;
+  /* Lock time 28th of Feburary 2022 GMT Timezone */
+  uint256 public lockTime = 1646006400;
   /* Left token after sending bonus */
   uint256 public leftAmount;
   /* the address of the token contract */
