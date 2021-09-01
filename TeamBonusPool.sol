@@ -87,11 +87,4 @@ contract TeamBonusPool is Ownable, ReentrancyGuard {
   function checkBalance() public view returns (uint256) {
     return leftAmount;
   }
-
-  fallback() external payable {
-  }
-
-  receive() external payable {
-  }
-
 }
