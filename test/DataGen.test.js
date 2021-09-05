@@ -4,7 +4,7 @@ require('chai').should();
 
 contract('DataGen', accounts => {
 
-    describe('Inizialise DataGen token attributes', async function() {
+    describe('Initialise DataGen token attributes', async function() {
         
         beforeEach(async function() {
             this.token = await DataGen.new();
