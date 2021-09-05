@@ -4,5 +4,8 @@
     "chai": "^4.3.4",
     "global": "^4.4.0",
     "truffle": "^5.4.1"
+  },
+  "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.13"
   }
 }
