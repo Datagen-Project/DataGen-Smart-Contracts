@@ -2,9 +2,9 @@ const DataGen = artifacts.require('./DataGen.sol')
 
 require('chai').should();
 
-contracts('DataGen', accounts => {
+contract('DataGen', accounts => {
 
-    describe('Inizialise DataGen token attributes', function() {
+    describe('Inizialise DataGen token attributes', async function() {
         this.token = await DataGen.new();
         it('has the correct name', async function () {
             const name = await this.token.name();
