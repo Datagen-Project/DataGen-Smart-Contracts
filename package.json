@@ -6,6 +6,8 @@
     "truffle": "^5.4.1"
   },
   "devDependencies": {
-    "@openzeppelin/test-helpers": "^0.5.13"
+    "@nomiclabs/hardhat-web3": "^2.0.0",
+    "@openzeppelin/test-helpers": "^0.5.13",
+    "web3": "^1.5.2"
   }
 }
