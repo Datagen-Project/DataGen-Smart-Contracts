@@ -78,4 +78,65 @@ contract('DataGen', accounts => {
             });
         });
     });
+    
+    describe('Transfer with approval', async function() {
+
+        beforeEach(async function() {
+            this.token = await DataGen.new();
+        });
+
+        it('with not approve must be 0 allowance', async function() {
+            const allowanceAccount1 = await this.token.allowance(accounts[0], accounts[1]);
+            allowanceAccount1.toString().should.equal('0');
+        });
+        it('has to have 100DG allowance if approved', async function() {
+            await this.token.approve(accounts[1], 100);
+            const allowanceAccount1 = await this.token.allowance(accounts[0], accounts[1]);
+            allowanceAccount1.toString().should.equal('100');
+        });
+        // it('has to revert if approve from zero address', async function() {
+        //     await expectRevert(
+        //         this.token.approve(accounts[1], 100, {from: constants.ZERO_ADDRESS}),
+        //         'ERC20: approve from the zero address'
+        //     )
+        // });
+        it('has to revert if spender is zero address', async function() {
+            await expectRevert(
+                this.token.approve(constants.ZERO_ADDRESS, 100),
+                'ERC20: approve to the zero address'
+            );
+        });
+        it('has to emit a Approval event if correct approved', async function() {
+            const receipt = await this.token.approve(accounts[1], 100);
+            await expectEvent(receipt, 'Approval', {
+                owner: accounts[0],
+                spender: accounts[1],
+                value: '100',
+            });
+        });
+        it('has to transfer 100DG from contract if approved', async function() {
+            await this.token.approve(accounts[1], 100, {from: accounts[0]});
+            await this.token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
+            const account2Balance = await this.token.balanceOf(accounts[2]);
+            account2Balance.toString().should.equal('100');
+        });
+        it('has to revert if transfer amount exceeds allowance', async function() {
+            await this.token.approve(accounts[1], 100, {from: accounts[0]});
+            await expectRevert(
+                this.token.transferFrom(accounts[0], accounts[2], 101, {from: accounts[1]}),
+                'ERC20: transfer amount exceeds allowance'
+            );
+        });
+        it('has to increse allowance', async function() {
+            await this.token.increaseAllowance(accounts[1], 100, {from: accounts[0]});
+            const account1Allowance = await this.token.allowance(accounts[0], accounts[1]);
+            account1Allowance.toString().should.equal('100');
+        });
+        it('has to decrease allowance', async function() {
+            await this.token.increaseAllowance(accounts[1], 100, {from: accounts[0]});
+            await this.token.decreaseAllowance(accounts[1], 50, {from: accounts[0]});
+            const account1Allowance = await this.token.allowance(accounts[0], accounts[1]);
+            account1Allowance.toString().should.equal('50');
+        });
+    });
 });
