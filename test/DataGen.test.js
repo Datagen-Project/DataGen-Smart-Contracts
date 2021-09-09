@@ -76,7 +76,7 @@ contract('DataGen', accounts => {
             const allowanceAccount1 = await this.token.allowance(accounts[0], accounts[1]);
             allowanceAccount1.toString().should.equal('0');
         });
-        it('has to have 100DG allowance if approved', async function() {
+        it('has to have 100 DG allowance if approved', async function() {
             await this.token.approve(accounts[1], 100);
             const allowanceAccount1 = await this.token.allowance(accounts[0], accounts[1]);
             allowanceAccount1.toString().should.equal('100');
@@ -101,11 +101,21 @@ contract('DataGen', accounts => {
                 value: '100',
             });
         });
-        it('has to transfer 100DG from contract if approved', async function() {
+        it('has to transfer 100 DG from owner if approved', async function() {
+            //accounts[1] is the spender, approved 100 DG from ownerv (accounts[0]) and transfer 100 DG to accounts[2]
             await this.token.approve(accounts[1], 100, {from: accounts[0]});
             await this.token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
             const account2Balance = await this.token.balanceOf(accounts[2]);
             account2Balance.toString().should.equal('100');
+        });
+        it('has to emit a correct Tranfer event', async function() {
+            await this.token.approve(accounts[1], 100, {from: accounts[0]});
+            const receipt = await this.token.transferFrom(accounts[0], accounts[2], 100, {from: accounts[1]});
+            await expectEvent(receipt, 'Transfer', {
+                from: accounts[0],
+                to: accounts[2],
+                value: '100',
+            });
         });
         it('has to revert if transfer amount exceeds allowance', async function() {
             await this.token.approve(accounts[1], 100, {from: accounts[0]});
@@ -128,7 +138,7 @@ contract('DataGen', accounts => {
     });
 
     describe('Mint DataGen', async function() {
-        it('has to rrevert if mint to the zero address', async function() {
+        it('has to revert if mint to the zero address', async function() {
             await expectRevert(
                 this.token.mint(constants.ZERO_ADDRESS, 100, {from: accounts[0]}),
                 'ERC20: mint to the zero address'
@@ -151,7 +161,7 @@ contract('DataGen', accounts => {
             const account1Balance = await this.token.balanceOf(accounts[1]);
             account1Balance.toString().should.equal('100');
         });
-        it('has to emit a Transfer eventt', async function() {
+        it('has to emit a Transfer event', async function() {
             const receipt = await this.token.mint(accounts[1], 100);
             await expectEvent(receipt, 'Transfer', {
                 from: constants.ZERO_ADDRESS,
