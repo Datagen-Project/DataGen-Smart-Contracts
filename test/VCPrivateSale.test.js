@@ -14,7 +14,7 @@ contract('VCPrivateSale', accounts => {
 
     describe('Initialise VCPrivateSale attributes', function() {
         it('has the correct maxGoal', async function() {
-            const maxGoal = this.contract.maxGoal();
+            const maxGoal = await this.contract.maxGoal();
             maxGoal.toString().should.equal('2350000000000000000000000'); // 2350000 * 10^18
         });
     });

@@ -9,7 +9,7 @@ require('chai').should();
 
 contract('DataGen', accounts => {
     beforeEach(async function() {
-        this.token = await DataGen.deployed();
+        this.token = await DataGen.new();
     });
 
     describe('Initialise DataGen attributes', function() {
