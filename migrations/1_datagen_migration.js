@@ -28,8 +28,8 @@ module.exports = async function (deployer) {
   const deployedBlock = await web3.eth.getBlock(transaction.blockNumber);
   const deployedTime = deployedBlock.timestamp;
     
-  await deployer.deploy(RetailPrivateSale, DataGen.address, VCStartTime, VCEndTime, VCLockTime);
-  await deployer.deploy(VCPrivateSale, DataGen.address, RetailStartTime, RetailEndTime);
+  await deployer.deploy(RetailPrivateSale, DataGen.address, RetailStartTime, RetailEndTime);
+  await deployer.deploy(VCPrivateSale, DataGen.address, VCStartTime, VCEndTime, VCLockTime);
   await deployer.deploy(ReservedPool, DataGen.address, companyWallet);
   await deployer.deploy(CoFounderPool, DataGen.address, aWallet, lWallet, deployedTime);
   await deployer.deploy(TeamMainPool, DataGen.address);
