@@ -1,4 +1,4 @@
-const DataGen = artifacts.require('./DataGen.sol')
+const DataGen = artifacts.require('./DataGen.sol');
 const {
     constants,    // Common constants, like the zero address and largest integers
     expectEvent,  // Assertions for emitted events
@@ -9,7 +9,7 @@ require('chai').should();
 
 contract('DataGen', accounts => {
     beforeEach(async function() {
-        this.token = await DataGen.new();
+        this.token = await DataGen.deployed();
     });
 
     describe('Initialise DataGen attributes', function() {
