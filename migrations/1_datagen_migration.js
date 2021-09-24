@@ -7,10 +7,10 @@ const TeamMainPool = artifacts.require("./TeamMainPool.sol");
 const TeamBonusPool = artifacts.require("./TeamBonusPool.sol");
 
 //Need to change when the contract is being deployed.
-const companyWallet = "0x2A5f12b2F128cE1b394201B9A24Ca257af25720F";
+const companyWallet = "0x2A6823d42DeF025f73419B10cF63dFb593bB4978";
 //Angela & Luca's wallet
-const aWallet = "0x02F1283563545EefCa20578358A650DE84e9f46b";
-const lWallet = "0x29Da73Bc911089059841a37927Ccd2e2A656D084";
+const aWallet = "0x292A7A1748b196fb1dF3238C12c1e2EF0150b214";
+const lWallet = "0x683B91b8b9CbEdB6FC832489A148f4CA79A5427B";
 
 //Set time to the VC contract
 const VCStartTime = '1631806094';
