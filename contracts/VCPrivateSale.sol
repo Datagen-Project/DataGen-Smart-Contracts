@@ -26,7 +26,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 	/* there are different prices in different time intervals */
 	uint256 public price = 7 * 10**5;
 
-	address private USDC_ADDRESS = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+	address private USDC_ADDRESS = 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
 
 	/* the address of the token contract */
 	IERC20 private tokenReward;
