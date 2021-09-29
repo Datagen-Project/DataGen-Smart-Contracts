@@ -14,7 +14,7 @@ const lWallet = "0x683B91b8b9CbEdB6FC832489A148f4CA79A5427B";
 
 //Set time to the VC contract
 const VCStartTime = '1631806094';
-const VCEndTime = '163180694';
+const VCEndTime = '1638193214';
 const VCLockTime = '1631816094';
 
 //Set time to Retail contract
