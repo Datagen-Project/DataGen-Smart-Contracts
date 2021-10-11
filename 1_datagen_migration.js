@@ -5,6 +5,7 @@ const ReservedPool = artifacts.require("ReservedPool");
 const CoFounderPool = artifacts.require("CoFounderPool");
 const TeamMainPool = artifacts.require("TeamMainPool");
 const TeamBonusPool = artifacts.require("TeamBonusPool");
+const MiningReservation = artifacts.require("MiningReservation");
 
 //Need to change when the contract is being deployed.
 const companyWallet = "";
@@ -24,4 +25,5 @@ module.exports = async function (deployer) {
   await deployer.deploy(CoFounderPool, DataGen.address, aWallet, lWallet, deployedTime);
   await deployer.deploy(TeamMainPool, DataGen.address);
   await deployer.deploy(TeamBonusPool, DataGen.address);
+  await deployer.deploy(MiningReservation, DataGen.address);
 };
