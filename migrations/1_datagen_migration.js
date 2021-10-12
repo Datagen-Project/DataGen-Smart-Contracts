@@ -7,19 +7,19 @@ const TeamMainPool = artifacts.require("./TeamMainPool.sol");
 const TeamBonusPool = artifacts.require("./TeamBonusPool.sol");
 
 //Need to change when the contract is being deployed.
-const companyWallet = "0x2A6823d42DeF025f73419B10cF63dFb593bB4978";
+const companyWallet = "";
 //Angela & Luca's wallet
-const aWallet = "0x292A7A1748b196fb1dF3238C12c1e2EF0150b214";
-const lWallet = "0x683B91b8b9CbEdB6FC832489A148f4CA79A5427B";
+const aWallet = "";
+const lWallet = "";
 
 //Set time to the VC contract
-const VCStartTime = '1631806094';
-const VCEndTime = '1638193214';
-const VCLockTime = '1631816094';
+const VCStartTime = "";
+const VCEndTime = "";
+const VCLockTime = "";
 
 //Set time to Retail contract
-const RetailStartTime = '1631806094';
-const RetailEndTime = '163180694';
+const RetailStartTime = "";
+const RetailEndTime = "";
 
 
 module.exports = async function (deployer) {
