@@ -92,18 +92,4 @@ contract ReservedPool is Ownable, ReentrancyGuard {
   function checkFunds() public view returns (uint256) {
 		return dataGen.balanceOf(address(this));
 	}
-
-  /**
-    * @dev external function to setFirstReleaseTime to current. This can be called by only owner and only for test
-  */
-  function setFirstReleaseTime() external onlyOwner {
-    frStart = block.timestamp;              // for test
-  }
-
-  /**
-    * @dev external function to setSecondReleaseTime to current. This can be called by only owner and only for test
-  */
-  function setSecondReleaseTime() external onlyOwner {
-    srStart = block.timestamp;              // for test
-  }
 }
