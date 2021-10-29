@@ -23,19 +23,19 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
   
   /* Total token amount in the Team main Pool */
-  uint256 public totalAmount = 1700000 * (10**18);
+  uint256 constant public totalAmount = 1700000 * (10**18);
   /* 1st Lock time 1st of May 2022 GMT Timezone */
-  uint256 public lockTime1 = 1651363200;
+  uint256 constant public lockTime1 = 1651363200;
   /* 1st Lock time 1st of May 2023 GMT Timezone */
-  uint256 public lockTime2 = 1682899200;
+  uint256 constant public lockTime2 = 1682899200;
   /* 1st Lock time 31st of December 2023 GMT Timezone */
-  uint256 public lockTime3 = 1703980800;
+  uint256 constant public lockTime3 = 1703980800;
   /* Left token after sending rewards */
   uint256 public leftAmount;
   /* the address of the token contract */
 	IERC20 public dataGen;
 
-  address public deadAddress = 0x000000000000000000000000000000000000dEaD;
+  address constant public deadAddress = 0x000000000000000000000000000000000000dEaD;
 
   mapping (address => uint256) mainSalary;
   mapping (address => uint256) leftSalary;

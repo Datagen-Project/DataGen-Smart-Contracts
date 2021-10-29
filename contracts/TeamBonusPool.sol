@@ -19,15 +19,15 @@ contract TeamBonusPool is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
   
   /* Total token amount in the Bonus Pool */
-  uint256 public totalAmount = 300000 * (10**18);
+  uint256 constant public totalAmount = 300000 * (10**18);
   /* Lock time 28th of Feburary 2022 GMT Timezone */
-  uint256 public lockTime = 1646006400;
+  uint256 constant public lockTime = 1646006400;
   /* Left token after sending bonus */
   uint256 public leftAmount;
   /* the address of the token contract */
 	IERC20 public dataGen;
 
-  address public deadAddress = 0x000000000000000000000000000000000000dEaD;
+  address constant public deadAddress = 0x000000000000000000000000000000000000dEaD;
 
   mapping (address => uint256) bonus;
   mapping (address => uint256) leftBonus;

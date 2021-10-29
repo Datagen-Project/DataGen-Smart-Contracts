@@ -11,7 +11,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     /* the maximum amount of tokens to be sold */
-	uint256 public maxGoal = 2350000 * (10**18);
+	uint256 constant public maxGoal = 2350000 * (10**18);
 	/* how much has been raised by retail investors (in USDC) */
 	uint256 public amountRaisedUSDC;
 	/* how much has been raised by retail investors (in #DG) */
@@ -26,7 +26,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 	/* there are different prices in different time intervals */
 	uint256 public price = 7 * 10**5;
 
-	address private USDC_ADDRESS = 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
+	address constant private USDC_ADDRESS = 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
 
 	/* the address of the token contract */
 	IERC20 private tokenReward;
