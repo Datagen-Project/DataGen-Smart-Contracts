@@ -61,7 +61,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		return balanceOfDG[addr];
 	}
 
-	function setLockTime(uint256 _lockTime) external {
+	function setLockTime(uint256 _lockTime) external onlyOwner {
 		lockTime = _lockTime;
 	}
 
