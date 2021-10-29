@@ -63,9 +63,6 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 		return balanceOfDG[addr];
 	}
 
-	function getETHBalance() public view returns (uint256) {
-		return address(this).balance;
-	}
 
     /* make an investment
      * only callable if the private sale started and hasn't been closed already and the maxGoal wasn't reached yet.

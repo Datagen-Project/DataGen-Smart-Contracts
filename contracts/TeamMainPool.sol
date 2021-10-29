@@ -39,7 +39,6 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
 
   mapping (address => uint256) mainSalary;
   mapping (address => uint256) leftSalary;
-  mapping (address => bool) isSalaryReceiver;
 
   event updateLeftAmount(address indexed user, uint256 indexed leftAmount);
 
@@ -52,21 +51,14 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
   function sendSalary(address _receiver, uint256 _amount) external onlyOwner {
     require(_receiver != deadAddress, "You are sending tokens to dead Address.");
     require(leftAmount >= _amount, "Left token is not enough.");
-    if(isSalaryReceiver[_receiver] != true) {
-      isSalaryReceiver[_receiver] = true;
-      mainSalary[_receiver] = _amount;
-      leftSalary[_receiver] = _amount;
-    }
-    else {
-      mainSalary[_receiver] = mainSalary[_receiver] + _amount;
-      leftSalary[_receiver] = leftSalary[_receiver] + _amount;
-    }
+    mainSalary[_receiver] = mainSalary[_receiver] + _amount;
+    leftSalary[_receiver] = leftSalary[_receiver] + _amount;
     leftAmount = leftAmount - _amount;
     emit updateLeftAmount(msg.sender, leftAmount);
   }
 
   function releaseSalary() external nonReentrant {
-    require(isSalaryReceiver[msg.sender] == true, "You are not salary Receiver.");
+    require(mainSalary[msg.sender] > 0, "You are not salary Receiver.");
     require(leftSalary[msg.sender] > 0, "You don't have enough funds.");
     uint256 balance = dataGen.balanceOf(address(this));
     if(block.timestamp < lockTime1) {

@@ -89,7 +89,4 @@ contract ReservedPool is Ownable, ReentrancyGuard {
     emit SetCompanyWalletAddress(msg.sender, _companyWallet);
   }
 
-  function checkFunds() public view returns (uint256) {
-		return dataGen.balanceOf(address(this));
-	}
 }

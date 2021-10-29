@@ -31,7 +31,6 @@ contract TeamBonusPool is Ownable, ReentrancyGuard {
 
   mapping (address => uint256) bonus;
   mapping (address => uint256) leftBonus;
-  mapping (address => bool) isBonusReceiver;
 
   event updateLeftAmount(address indexed user, uint256 indexed leftAmount);
 
@@ -44,22 +43,15 @@ contract TeamBonusPool is Ownable, ReentrancyGuard {
   function sendBonus(address _receiver, uint256 _amount) external onlyOwner {
     require(_receiver != deadAddress, "You are sending tokens to dead Address.");
     require(leftAmount >= _amount, "Left token is not enough.");
-    if(isBonusReceiver[_receiver] != true) {
-      isBonusReceiver[_receiver] = true;
-      bonus[_receiver] = _amount;
-      leftBonus[_receiver] = _amount;
-    }
-    else {
-      bonus[_receiver] = bonus[_receiver] + _amount;
-      leftBonus[_receiver] = leftBonus[_receiver] + _amount;
-    }
+    bonus[_receiver] = bonus[_receiver] + _amount;
+    leftBonus[_receiver] = leftBonus[_receiver] + _amount;
     leftAmount = leftAmount - _amount;
     emit updateLeftAmount(msg.sender, leftAmount);
   }
 
   function releaseBonus() external nonReentrant {
     require(block.timestamp >= lockTime, "Pool is locked until 1st of February 2022.");
-    require(isBonusReceiver[msg.sender] == true, "You are not bonus Receiver.");
+    require(bonus[msg.sender] > 0, "You are not bonus Receiver.");
     require(leftBonus[msg.sender] > 0, "You don't have enough funds.");
     
     uint256 epochs = block.timestamp.sub(lockTime).div(30 * 24 * 3600).add(1);

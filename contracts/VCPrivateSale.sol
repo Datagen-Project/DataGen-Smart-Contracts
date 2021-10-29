@@ -61,10 +61,6 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		return balanceOfDG[addr];
 	}
 
-	function getETHBalance() public view returns (uint256) {
-		return address(this).balance;
-	}
-
 	function setLockTime(uint256 _lockTime) public {
 		lockTime = _lockTime;
 	}

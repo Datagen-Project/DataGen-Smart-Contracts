@@ -120,8 +120,4 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
     emit SetlWalletAddress(msg.sender, _lWallet);
   }
 
-  function checkFunds() public view returns (uint256) {
-    return dataGen.balanceOf(address(this));
-  }
-
 }
