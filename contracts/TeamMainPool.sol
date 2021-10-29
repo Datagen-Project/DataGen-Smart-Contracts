@@ -142,12 +142,12 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
     }
   }
 
-  function checkSalary(address _checker) public view returns (uint256) {
+  function checkSalary(address _checker) external view returns (uint256) {
     require(isSalaryReceiver[_checker], "You are not Salary Receiver.");
     return leftSalary[_checker];
   }
   
-  function checkBalance() public view returns (uint256) {
+  function checkBalance() external view returns (uint256) {
     return leftAmount;
   }
 }

@@ -61,7 +61,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		return balanceOfDG[addr];
 	}
 
-	function setLockTime(uint256 _lockTime) public {
+	function setLockTime(uint256 _lockTime) external {
 		lockTime = _lockTime;
 	}
 
@@ -145,13 +145,13 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		tokenReward.transfer(msg.sender, amount);
 	}
 
-	function withdrawUSDC() public onlyOwner afterClosed {
+	function withdrawUSDC() external onlyOwner afterClosed {
 		uint256 balance = usdc.balanceOf(address(this));
 		require(balance > 0, "Balance is zero.");
 		usdc.transfer(owner(), balance);
 	}
 
-	function withdrawDataGen() public onlyOwner afterClosed{
+	function withdrawDataGen() external onlyOwner afterClosed{
 		uint256 balance = tokenReward.balanceOf(address(this));
 		require(balance > 0, "Balance is zero.");
 		tokenReward.transfer(owner(), balance);
