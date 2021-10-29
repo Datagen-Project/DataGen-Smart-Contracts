@@ -44,7 +44,7 @@ contract ReservedPool is Ownable, ReentrancyGuard {
     _;
   }
 
-  function releaseDataGen() public firstRelease nonReentrant {
+  function releaseDataGen() external firstRelease nonReentrant {
     require(dataGen.balanceOf(address(this)) > 0, "Zero #DG left.");
 
     if(block.timestamp < srStart ) {
@@ -84,7 +84,7 @@ contract ReservedPool is Ownable, ReentrancyGuard {
 	}
 
   /* companyWallet update, only owner can do. */
-  function setCompanyWallet(address _companyWallet) public onlyOwner {
+  function setCompanyWallet(address _companyWallet) external onlyOwner {
     companyWallet = _companyWallet;
     emit SetCompanyWalletAddress(msg.sender, _companyWallet);
   }

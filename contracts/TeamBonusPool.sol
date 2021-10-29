@@ -71,12 +71,12 @@ contract TeamBonusPool is Ownable, ReentrancyGuard {
     }
   }
 
-  function checkBouns(address _checker) public view returns (uint256) {
+  function checkBouns(address _checker) external view returns (uint256) {
     require(isBonusReceiver[_checker], "You are not Bonus Receiver.");
     return leftBonus[_checker];
   }
   
-  function checkBalance() public view returns (uint256) {
+  function checkBalance() external view returns (uint256) {
     return leftAmount;
   }
 }

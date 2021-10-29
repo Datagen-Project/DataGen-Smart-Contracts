@@ -53,11 +53,11 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		lockTime = _lockTime;
     }
 
-	function checkFunds(address addr) public view returns (uint256) {
+	function checkFunds(address addr) external view returns (uint256) {
 		return balanceOfUSDC[addr];
 	}
 
-	function checkDataGenFunds(address addr) public view returns (uint256) {
+	function checkDataGenFunds(address addr) external view returns (uint256) {
 		return balanceOfDG[addr];
 	}
 
@@ -124,7 +124,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
         _;
     }
 
-	function claimDataGen() public afterClosed nonReentrant {
+	function claimDataGen() external afterClosed nonReentrant {
 		require(totalBalanceOfDG[msg.sender] > 0, "Zero #DG contributed.");
 
 		uint256 epochs = 0;

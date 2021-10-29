@@ -55,11 +55,11 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
     receive () external payable{
     }
 
-	function checkFunds(address addr) public view returns (uint256) {
+	function checkFunds(address addr) external view returns (uint256) {
 		return balanceOfUSDC[addr];
 	}
 
-	function checkDataGenFunds(address addr) public view returns (uint256) {
+	function checkDataGenFunds(address addr) external view returns (uint256) {
 		return balanceOfDG[addr];
 	}
 
@@ -109,7 +109,7 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
         _;
     }
 
-	function claimDataGen() public nonReentrant {
+	function claimDataGen() external nonReentrant {
 		require(balanceOfDG[msg.sender] > 0, "Zero #DG contributed.");
 		uint256 amount = balanceOfDG[msg.sender];
 		uint256 balance = tokenReward.balanceOf(address(this));
@@ -118,13 +118,13 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 		tokenReward.transfer(msg.sender, amount);
 	}
 
-	function withdrawUSDC() public onlyOwner afterClosed {
+	function withdrawUSDC() external onlyOwner afterClosed {
 		uint256 balance = usdc.balanceOf(address(this));
 		require(balance > 0, "Balance is zero.");
 		usdc.transfer(owner(), balance);
 	}
 
-	function withdrawDataGen() public onlyOwner afterClosed{
+	function withdrawDataGen() external onlyOwner afterClosed{
 		uint256 balance = tokenReward.balanceOf(address(this));
 		require(balance > 0, "Balance is zero.");
 		tokenReward.transfer(owner(), balance);
