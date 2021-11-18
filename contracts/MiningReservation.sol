@@ -16,8 +16,8 @@ contract MiningReservation is Ownable, ReentrancyGuard {
   uint256 public multipler = 1;
   
   /* Available at first */
-  uint256 public startAmount = 2280 * (10**18);
-  uint256 public beginAmount = 2280 * (10**18);
+  uint256 public startAmount = 4560 * (10**18);
+  uint256 public beginAmount = 4560 * (10**18);
 
   /* Votation time*/
   uint256 public votationStartTime = 0;
@@ -40,6 +40,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
 
   /* Dead address */
   address miningWallet = 0x000000000000000000000000000000000000dEaD;
+  address deadAddr = 0x000000000000000000000000000000000000dEaD;
 
   event SetMiningWalletAddress(address indexed user, address indexed miningWallet); 
 
@@ -65,26 +66,37 @@ contract MiningReservation is Ownable, ReentrancyGuard {
 
   function setMiningWallet(address _miningWallet) external onlyOwner afterVotation {
     miningWallet = _miningWallet;
+
+    votationStartTime = 0;
+    votationDuration = 0;
+
     emit SetMiningWalletAddress(msg.sender, miningWallet);
   }
 
-  function stake( uint256 amount ) external duringVotation nonReentrant{
+  function stake( uint256 amount ) external nonReentrant{
     require( dataGen.balanceOf(msg.sender) >= amount, "you have not enough #DG to stake");
+    require( votationStartTime == 0 && votationDuration == 0,"You can't stake before setting wallet");
     require( voteInfo[msg.sender] == 0, "you can't stake after vote");
+
 
     if( stakeAmount[msg.sender] == 0 ) {
       stakers[stakerCount] = msg.sender;
       stakerCount++;
     }
-    dataGen.transferFrom(msg.sender, address(this), amount);
     stakeAmount[msg.sender] += amount;
+    
+    if( stakeAmount[msg.sender] >= 100000 * 10 **18 && votationStartTime == 0 && votationDuration == 0 ) {
+      votationStartTime = block.timestamp + 3600 * 24 * 15;
+      votationDuration = 3600 * 24 * 30;
+    }
     totalStakeAmount += amount;
-
+    dataGen.transferFrom(msg.sender, address(this), amount);
   }
 
   function vote( uint256 position ) external duringVotation nonReentrant {
     require( stakeAmount[msg.sender] > 0, "you must stake before vote");
     require( voteInfo[msg.sender] == 0, "you already voted");
+    require( voteOption > 0,"total vote option is not set yet");
     require( position > 0, "vote position must be bigger than 0");
     require( position <= voteOption, "position must be less than total vote option count");
 
@@ -99,16 +111,12 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     return totalVoteInfo[position];
   }
 
-  function setVotationInfo( uint256 startTime, uint256 duration, uint256 totalOption ) external onlyOwner {
-    require(startTime > 0, "vote start time must be bigger than 0");
-    require( duration > 0, "vote duration must be bigger than 0");
+  function setVotationInfo( uint256 totalOption ) external onlyOwner {
     require( totalOption > 0, "option count must be bigger than 0");
-    votationStartTime = startTime;
-    votationDuration = duration;
     voteOption = totalOption;
   }
 
-  function getWinner() external onlyOwner returns(uint256) {
+  function getWinner() external onlyOwner afterVotation returns(uint256) {
     uint256 winnerDGCount = 0;
     uint256 winnerInfo;
     for( uint256 i = 1; i <= voteOption; i++ ) {
@@ -120,7 +128,18 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     for( uint256 i = 0; i < stakerCount ; i++ ) {
       address stakerAddr = stakers[i];
       dataGen.transfer(stakerAddr, stakeAmount[stakerAddr]);
+      voteInfo[stakerAddr] = 0;
+      stakeAmount[stakerAddr] = 0;
+      stakers[i] = deadAddr;  
     }
+
+    for( uint i = 1 ; i <= voteOption; i++ ) {
+      totalVoteInfo[i] = 0;
+      totalVotedDG[i] = 0;
+    }
+    totalStakeAmount = 0;
+    stakerCount = 0;
+
     return winnerInfo;
   }
 
