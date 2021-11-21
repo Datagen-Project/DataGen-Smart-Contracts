@@ -15,8 +15,6 @@ contract('CoFounderPool', accounts => {
         let datagen_contract;
         this.token = await DataGen.new();
 
-        
-
         const transaction = await web3.eth.getTransaction(DataGen.transactionHash);
         const deployedBlock = await web3.eth.getBlock(transaction.blockNumber);
         deployedTime = deployedBlock.timestamp;
@@ -47,9 +45,17 @@ contract('CoFounderPool', accounts => {
             const beginAmount = await this.contractDeployed.beginAmount();
             beginAmount.toString().should.equal('300000000000000000000000');  //300000 * 10^18
         });
-
-
     });
+
+    describe('setWallet', function() {
+        it('has to revert if the caller is not Angela or Luca', async function() {
+            await expectRevert (
+                this.contractClosed.setaWallet("0xAb9a7647f6f266C8dD77c41C1faaa0c4ce489B12"),
+                'You are not the wallet owner.'
+            );
+        });
+    });
+
     describe('releaseDataGen', async function() {
         it('has to revert if the contract has zero #DG token', async function() {
             await expectRevert (
