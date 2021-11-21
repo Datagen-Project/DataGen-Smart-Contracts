@@ -11,12 +11,14 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract ReservedPool is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
+  using SafeERC20 for IERC20;
   
   /* First release tokens */
   uint256 constant public frAmount = 750000 * (10**18);
@@ -59,14 +61,14 @@ contract ReservedPool is Ownable, ReentrancyGuard {
       uint256 transferAmount = balance.sub(srAmount).sub(leftAmount);
       if(transferAmount > 0) {
         require(balance.sub(srAmount) >= transferAmount, "Wrong amount to transfer");
-        dataGen.transfer(companyWallet, transferAmount);
+        dataGen.safeTransfer(companyWallet, transferAmount);
       }
     }
     else {
       uint256 balance = dataGen.balanceOf(address(this));
       
       if( balance > srAmount) {
-        dataGen.transfer(companyWallet, (balance.sub(srAmount)));
+        dataGen.safeTransfer(companyWallet, (balance.sub(srAmount)));
       }
 
       uint256 epochs = (block.timestamp.sub(srStart)).div(30 * 24 * 3600).add(1);
@@ -78,7 +80,7 @@ contract ReservedPool is Ownable, ReentrancyGuard {
       require(balance > leftAmount, "Already released.");
       uint256 transferAmount = balance.sub(leftAmount);
       if(transferAmount > 0) {
-        dataGen.transfer(companyWallet, transferAmount);
+        dataGen.safeTransfer(companyWallet, transferAmount);
       }
     }
 	}

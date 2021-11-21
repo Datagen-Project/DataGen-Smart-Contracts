@@ -13,13 +13,15 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract CoFounderPool is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
-  
+  using SafeERC20 for IERC20;
+
   /* Token amount for co-founders */
   uint256 constant public cfAmount = 3000000 * (10**18);
   /* Release amount for co-founders */
@@ -84,8 +86,8 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
         require(balance >= transferAmount, "Wrong amount to transfer");
         uint256 half = transferAmount.div(2);
         uint256 otherHalf = transferAmount.sub(half);
-        dataGen.transfer(aWallet, half);
-        dataGen.transfer(lWallet, otherHalf);
+        dataGen.safeTransfer(aWallet, half);
+        dataGen.safeTransfer(lWallet, otherHalf);
       }
     }
   }
@@ -96,15 +98,15 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
     if(totalBalance >= cfAmount){
       uint256 half = beginAmount.div(2);
       uint256 otherHalf = beginAmount.sub(half);
-      dataGen.transfer(aWallet, half);
-      dataGen.transfer(lWallet, otherHalf);
+      dataGen.safeTransfer(aWallet, half);
+      dataGen.safeTransfer(lWallet, otherHalf);
     }
     else {
       uint256 firstReleaseAmount = totalBalance.sub(rcfAmount);
       uint256 half = firstReleaseAmount.div(2);
       uint256 otherHalf = firstReleaseAmount.sub(half);
-      dataGen.transfer(aWallet, half);
-      dataGen.transfer(lWallet, otherHalf);
+      dataGen.safeTransfer(aWallet, half);
+      dataGen.safeTransfer(lWallet, otherHalf);
     }
   }
 
