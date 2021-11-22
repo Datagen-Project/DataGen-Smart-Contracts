@@ -27,12 +27,12 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 	/* there are different prices in different time intervals */
 	uint256 public price = 7 * 10**5;
 
-	address private USDC_ADDRESS = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+	address public USDC_ADDRESS;
 
 	/* the address of the token contract */
 	IERC20 private tokenReward;
 	/* the address of the usdc token */
-	IERC20 private usdc = IERC20(USDC_ADDRESS);
+	IERC20 private usdc;
 
 	/* indicates if the private sale has been closed already */
 	bool public presaleClosed = false;
@@ -45,10 +45,12 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 	event FundTransfer(address backer, uint256 amountUSDC, bool isContribution, uint256 amountRaisedUSDC);
 
     /*  initialization, set the token address */
-    constructor(IERC20 _token, uint256 _startTime, uint256 _endTime) {
+    constructor(IERC20 _token, uint256 _startTime, uint256 _endTime, address _USDC_ADDRESS) {
         tokenReward = _token;
 		startTime = _startTime;
 		endTime = _endTime;
+		USDC_ADDRESS = _USDC_ADDRESS;
+		usdc = IERC20(USDC_ADDRESS);
     }
 
     /* invest by sending usdc to the contract. */
@@ -89,6 +91,7 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 			price = 10**6;
 			uint256 amountUSDC2 = amountDG2.mul(price).div(10**18);
 			amountUSDC = amountUSDC1 + amountUSDC2;
+			amountUSDC = amountDG;
 		}
 
 		usdc.transferFrom(msg.sender, address(this), amountUSDC);
@@ -121,7 +124,7 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 		tokenReward.transfer(msg.sender, amount);
 	}
 
-	function withdrawUSDC() public onlyOwner afterClosed {
+	function withdrawUSDC() public onlyOwner {
 		uint256 balance = usdc.balanceOf(address(this));
 		require(balance > 0, "Balance is zero.");
 		usdc.transfer(owner(), balance);

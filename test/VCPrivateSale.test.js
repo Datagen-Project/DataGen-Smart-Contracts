@@ -48,7 +48,7 @@ contract('VCPrivateSale', accounts => {
             presaleClosed.should.equal(false);
         });
     });
-    describe('Invest', async function() {
+    describe('Invest', function() {
         it('has to revert if VC is closed', async function() {
             await expectRevert (
                 this.contractClosed.invest(100),
