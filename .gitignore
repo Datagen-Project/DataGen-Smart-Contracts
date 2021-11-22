@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-node_modules
-build
-=======
 # dependencies
 /node_modules
 
@@ -15,4 +11,3 @@ build
 .env.development.local
 .env.test.local
 .env.production.local
->>>>>>> e0887d0c8ea24a233875b3bcc75f33a364cbe954
