@@ -26,12 +26,12 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 	/* there are different prices in different time intervals */
 	uint256 public price = 7 * 10**5;
 
-	address private USDC_ADDRESS = 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
+	address private USDC_ADDRESS;
 
 	/* the address of the token contract */
 	IERC20 private tokenReward;
 	/* the address of the usdc token */
-	IERC20 private usdc = IERC20(USDC_ADDRESS);
+	IERC20 private usdc;
 
 	/* indicates if the private sale has been closed already */
 	bool public presaleClosed = false;
@@ -46,11 +46,13 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 	event FundTransfer(address backer, uint256 amountUSDC, bool isContribution, uint256 amountRaisedUSDC);
 
     /*  initialization, set the token address */
-    constructor(IERC20 _token, uint256 _startTime, uint256 _endTime, uint256 _lockTime) {
+    constructor(IERC20 _token, uint256 _startTime, uint256 _endTime, uint256 _lockTime, address _USDC_ADDRESS) {
         tokenReward = _token;
 		startTime = _startTime;
 		endTime = _endTime;
 		lockTime = _lockTime;
+		USDC_ADDRESS = _USDC_ADDRESS;
+		usdc = IERC20(USDC_ADDRESS);
     }
 
 	function checkFunds(address addr) public view returns (uint256) {
