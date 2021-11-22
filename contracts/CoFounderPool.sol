@@ -38,16 +38,30 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
   event SetaWalletAddress(address indexed user, address indexed aWallet); 
   event SetlWalletAddress(address indexed user, address indexed lWallet); 
 
+  /* modifier for only Angela,Luca can call setaWallet,setlWallet function */
+  modifier onlyAngela( address _angela) {
+    require( aWallet == _angela,"You are not the wallet owner.");
+    _;
+  }
+
+  modifier onlyLuca( address _luca) {
+    require( lWallet == _luca,"You are not the wallet owner.");
+    _;
+  }
+
   /*  initialization, set the token address, co-founder's wallet address and deployed time of DataGen */
   constructor(IERC20 _dataGen, address _aWallet, address _lWallet, uint256 _deployedTime) {
     dataGen = _dataGen;
     aWallet = _aWallet;
     lWallet = _lWallet;
-    releaseStart = _deployedTime + 94608000; //1,095 days
+    releaseStart = _deployedTime + 1095 days; //1,095 days
+
   }
 
-  function releaseDataGen() public nonReentrant {
+  function releaseDataGen() external nonReentrant {
     require(dataGen.balanceOf(address(this)) > 0, "Zero #DG left.");
+
+
 
     if(block.timestamp < releaseStart ) {
       firstRelease();
@@ -95,20 +109,22 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
   }
 
   /* aWallet update, only Angela can do. */
-  function setaWallet(address _aWallet) public {
-    require(aWallet == msg.sender, "You are not the wallet owner.");
+  function setaWallet(address _aWallet) external onlyAngela(msg.sender) {
     aWallet = _aWallet;
     emit SetaWalletAddress(msg.sender, _aWallet);
   }
 
   /* lWallet update, only Luca can do. */
-  function setlWallet(address _lWallet) public {
-    require(lWallet == msg.sender, "You are not the wallet owner.");
+  function setlWallet(address _lWallet) external onlyLuca(msg.sender) {
     lWallet = _lWallet;
     emit SetlWalletAddress(msg.sender, _lWallet);
   }
 
   function checkFunds() public view returns (uint256) {
     return dataGen.balanceOf(address(this));
+  }
+
+  function setReleaseTime() external {
+      releaseStart = block.timestamp;              // for test
   }
 }
