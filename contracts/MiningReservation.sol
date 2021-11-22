@@ -15,6 +15,9 @@ contract MiningReservation is Ownable, ReentrancyGuard {
   uint256 public totalLocked = 15000000 * (10**18);
   uint256 public multipler = 1;
   
+  /* Min release rate */
+  uint256 public minReleaseRate = 7125 * 10 ** 16;	//71.25 DG
+  
   /* Available at first */
   uint256 public startAmount = 4560 * (10**18);
   uint256 public beginAmount = 4560 * (10**18);
@@ -33,7 +36,9 @@ contract MiningReservation is Ownable, ReentrancyGuard {
   mapping( address => uint256 ) voteInfo;
   mapping( uint256 => uint256 ) totalVoteInfo;
   mapping( uint256 => uint256 ) totalVotedDG;
-  uint256 public voteOption;
+
+  address public voteSetter = 0x000000000000000000000000000000000000dEaD;
+  uint256 public voteOption = 2;
 
   /* the address of the token contract */
 	IERC20 public dataGen;
@@ -41,6 +46,8 @@ contract MiningReservation is Ownable, ReentrancyGuard {
   /* Dead address */
   address miningWallet = 0x000000000000000000000000000000000000dEaD;
   address deadAddr = 0x000000000000000000000000000000000000dEaD;
+  address newMiningWallet;
+
 
   event SetMiningWalletAddress(address indexed user, address indexed miningWallet); 
 
@@ -59,25 +66,30 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     require( block.timestamp >= votationStartTime + votationDuration, "votation not ended");
     _;
   }
+
+  modifier onlyVoteSetter() {
+    require( msg.sender == voteSetter, "you are not setter");
+    _;
+  }
   /*  initialization, set the token address */
   constructor(IERC20 _dataGen) {
     dataGen = _dataGen;
   }
 
-  function setMiningWallet(address _miningWallet) external onlyOwner afterVotation {
+  function setMiningWallet(address _miningWallet) internal afterVotation {
     miningWallet = _miningWallet;
 
     votationStartTime = 0;
     votationDuration = 0;
+    voteSetter = deadAddr;
+    newMiningWallet = deadAddr;
 
     emit SetMiningWalletAddress(msg.sender, miningWallet);
   }
 
   function stake( uint256 amount ) external nonReentrant{
     require( dataGen.balanceOf(msg.sender) >= amount, "you have not enough #DG to stake");
-    require( votationStartTime == 0 && votationDuration == 0,"You can't stake before setting wallet");
     require( voteInfo[msg.sender] == 0, "you can't stake after vote");
-
 
     if( stakeAmount[msg.sender] == 0 ) {
       stakers[stakerCount] = msg.sender;
@@ -85,12 +97,18 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     }
     stakeAmount[msg.sender] += amount;
     
-    if( stakeAmount[msg.sender] >= 100000 * 10 **18 && votationStartTime == 0 && votationDuration == 0 ) {
-      votationStartTime = block.timestamp + 3600 * 24 * 15;
-      votationDuration = 3600 * 24 * 30;
+    if( stakeAmount[msg.sender] >= 100000 * 10 **18 && voteSetter == deadAddr ) {
+      voteSetter = msg.sender;
     }
     totalStakeAmount += amount;
     dataGen.transferFrom(msg.sender, address(this), amount);
+  }
+
+  function voteOptionSet( address _newMiningWallet ) external onlyVoteSetter {
+    require( _newMiningWallet != deadAddr, "You can't set dead Address to new mining wallet");
+    newMiningWallet = _newMiningWallet;
+    votationStartTime = block.timestamp + 3600 * 24 * 15;
+    votationDuration = 3600 * 24 * 30;
   }
 
   function vote( uint256 position ) external duringVotation nonReentrant {
@@ -111,10 +129,6 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     return totalVoteInfo[position];
   }
 
-  function setVotationInfo( uint256 totalOption ) external onlyOwner {
-    require( totalOption > 0, "option count must be bigger than 0");
-    voteOption = totalOption;
-  }
 
   function getWinner() external onlyOwner afterVotation returns(uint256) {
     uint256 winnerDGCount = 0;
@@ -140,6 +154,9 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     totalStakeAmount = 0;
     stakerCount = 0;
 
+    if( winnerInfo == 1 ) setMiningWallet(deadAddr);
+    else if( winnerInfo == 2 ) setMiningWallet(newMiningWallet);
+
     return winnerInfo;
   }
 
@@ -155,6 +172,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
       epochs = epochs - 1095;
       multipler ++;
       beginAmount = beginAmount.div(2);
+	    if( beginAmount < minReleaseRate ) beginAmount = minReleaseRate;
     }
 
     uint256 counter = multipler;
