@@ -11,6 +11,20 @@ const { Account } = require('ethereumjs-util');
 
 require('chai').should();
 
+//@dev  In order to test this functionalities you must add this functions in RetailPrivateSlae.sol
+
+// function setDiscountLimitTest(uint256 _discountLimit) public {
+//     discountLimit = _discountLimit;
+// }
+           
+// function setMaxGoalTest(uint256 _maxGoal) public {
+//     maxGoal = _maxGoal;
+// }
+
+// function setEndTime(uint256 _endtime) public {
+//     endTime = _endtime;
+// }
+
 contract('RetailPrivateSale', accounts => {
     beforeEach(async function() {
         this.DatagenToken = await DataGen.new();
@@ -21,18 +35,20 @@ contract('RetailPrivateSale', accounts => {
         //Use to test contract closed situations
         this.contractClosed = await RetailPrivateSale.new(this.DatagenToken.address, 1631806094, 1631806094, this.USDCToken.address);
         //Use to test investments
-        this.contractOpen = await RetailPrivateSale.new(this.DatagenToken.address, 1631806094, 1637829247, this.USDCToken.address);
+        this.contractOpen = await RetailPrivateSale.new(this.DatagenToken.address, 1631806094, 4129998853, this.USDCToken.address);
 
         
         //funding the Presale contract
         const fundDatagen = new BN('150000000000000000000000');
         await this.DatagenToken.transfer(this.contractDeployed.address, fundDatagen, {from: accounts[0]});
 
+        //funding closed Presle contract
+        await this.DatagenToken.transfer(this.contractClosed.address, fundDatagen, {from: accounts[0]});
+
         //Funding investors with USDC
         const fundUSDC = new BN('120000000000000000000');
         await this.USDCToken.transfer(accounts[4], fundUSDC, {from: accounts[0]});
     });
-
     describe('initialise RetailPrivateSale attributes', function() {
         it('has the correct maxGoal', async function() {
             const maxGoal = await this.contractDeployed.maxGoal();
@@ -65,7 +81,6 @@ contract('RetailPrivateSale', accounts => {
             USDCaddressRetail.toString().should.equal(USDCaddress.toString());
         });
     });
-
     describe('Invest', function() {
         it('has to revert if Presale is closed', async function() {
             await expectRevert (
@@ -103,13 +118,9 @@ contract('RetailPrivateSale', accounts => {
             balanceOfDG.toString().should.equal('15000000000000000000');
         });
         it('hat to invest 10DG at normal price of 1DG = 1USDC', async function() {
-            //in order to test this functionality you must add this function in RetailPrivateSlae.sol
-            // function setDiscountLimit(uint256 _discountLimit) public {
-            //     discountLimit = _discountLimit;
-            // }
             const discountLimit = 10;
             const investment = new BN('15000000000000000000');
-            await this.contractOpen.setDiscountLimit(discountLimit);
+            await this.contractOpen.setDiscountLimitTest(discountLimit);
             await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
             await this.contractOpen.invest(investment, {from: accounts[4]});
 
@@ -133,14 +144,104 @@ contract('RetailPrivateSale', accounts => {
 
             amountRaisedUSDC.toString().should.equal('31500000');
             amountRaisedDG.toString().should.equal('45000000000000000000');
-        })
+        });
+        it('has to emit a corret FundTranfer event', async function() {
+            const investment = new BN('15000000000000000000');
+            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
+
+            const receipt = await this.contractOpen.invest(investment, {from: accounts[4]});
+
+            await expectEvent(receipt, 'FundTransfer', {
+                backer: accounts[4],
+                amountUSDC: '10500000',
+                isContribution: true,
+                amountRaisedUSDC: '10500000'
+            });
+        });
+        it('has to emit a correct GoalReached event', async function() {
+            const maxGoal = new BN('10000000000000000000');
+            const investment = new BN('15000000000000000000');
+            
+            await this.contractOpen.setMaxGoalTest(maxGoal);
+            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
+
+            const receipt = await this.contractOpen.invest(investment, {from: accounts[4]});
+
+            await expectEvent(receipt, 'GoalReached', {
+                beneficiary: accounts[4],
+                amountRaisedUSDC: '10500000'
+            });
+        });
     });
-    describe('After closer', function() {
-        it('has to revert if balance of USDC is 0', async function() {
+    describe('Claim Datagen', function() {
+        it('has to revert if balance DG is 0', async function() {
+            await expectRevert(
+                this.contractOpen.claimDataGen({from: accounts[4]}),
+                "Zero #DG contributed."
+            );
+        });
+        it('has to revert if balance of USDC is less than DG', async function() {
+            const investment = new BN("10000000000000000000");
+
+            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
+            await this.contractOpen.invest(investment, {from: accounts[4]});
+
+            await expectRevert(
+                this.contractOpen.claimDataGen({from: accounts[4]}),
+                "Contract has less fund."
+            );
+        });
+        it('has to transfer the right amount of DG', async function() {
+            const investment = new BN("15000000000000000000");
+            const fundDatagen = new BN('150000000000000000000000');
+
+            await this.DatagenToken.transfer(this.contractOpen.address, fundDatagen, {from: accounts[0]});
+            
+            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
+            await this.contractOpen.invest(investment, {from: accounts[4]});
+
+            await this.contractOpen.claimDataGen({from: accounts[4]});
+
+            const balanceOfDG = await this.DatagenToken.balanceOf(accounts[4]);
+            balanceOfDG.toString().should.equal("15000000000000000000");
+        });
+    });
+    describe("Withdraw USDC and DG by the owner", function() {
+        it("has to revert if balance of USDC is 0", async function() {
             await expectRevert(
                 this.contractClosed.withdrawUSDC({from: accounts[0]}),
                 "Balance is zero."
             );
         });
+        it("withdrawUSDC has to revert if caller isn't the owner", async function() {
+            await expectRevert(
+                this.contractClosed.withdrawUSDC({from: accounts[4]}),
+                "Ownable: caller is not the owner"
+            );
+        });
+        it("owner must be able to withdraw the USDC raised", async function() {
+            const investment = new BN('15000000000000000000');
+            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});            
+            await this.contractOpen.invest(investment, {from: accounts[4]});
+            
+            await this.contractOpen.withdrawUSDC({from:accounts[0]});
+            
+            const ownerUSDCBalance = await this.USDCToken.balanceOf(accounts[0]);
+            //accounts[0] is also the owner of USDC so it has the total supply minus the fund transfer to account[4]
+            ownerUSDCBalance.toString().should.equal("14999880000000000010500000");
+        });
+        it("withdrawDataGen has to revert if caller isn't the owner", async function() {
+            await expectRevert(
+                this.contractClosed.withdrawDataGen({from: accounts[4]}),
+                "Ownable: caller is not the owner"
+            );
+        });
+        //to verify
+        // it("owner must be able to withdraw the DG raised", async function() {
+        //     await this.contractClosed.withdrawDataGen({from: accounts[0]});
+            
+        //     const totalSupply = await this.DatagenToken.balanceOf(accounts[0]);
+        //     totalSupply.toString().should.equal("15000000000000000000000000");
+        // });
     });
 });
