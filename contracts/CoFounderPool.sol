@@ -124,7 +124,4 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
     return dataGen.balanceOf(address(this));
   }
 
-  function setReleaseTime() external {
-      releaseStart = block.timestamp;              // for test
-  }
 }
