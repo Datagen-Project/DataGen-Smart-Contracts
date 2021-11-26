@@ -38,6 +38,9 @@ contract MiningReservation is Ownable, ReentrancyGuard {
   mapping( uint256 => uint256 ) totalVotedDG;
 
   address public voteSetter = 0x000000000000000000000000000000000000dEaD;
+   /* Votation address set time*/
+   uint256 public voteAddrSetStartTime = 0;
+   uint256 public voteAddrSetDuration = 3600 * 24 * 57; 
   uint256 public voteOption = 2;
 
   /* the address of the token contract */
@@ -46,7 +49,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
   /* Dead address */
   address miningWallet = 0x000000000000000000000000000000000000dEaD;
   address deadAddr = 0x000000000000000000000000000000000000dEaD;
-  address newMiningWallet;
+  address newMiningWallet = 0x000000000000000000000000000000000000dEaD;
 
 
   event SetMiningWalletAddress(address indexed user, address indexed miningWallet); 
@@ -59,6 +62,12 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     require( block.timestamp <= votationStartTime + votationDuration, "votation ended");
     _;
   }
+  modifier duringVoteSetTime() {
+    require( voteAddrSetStartTime > 0, "voteSet start time is not set");
+    require( block.timestamp >= votationStartTime, "votation is not started");
+    require( block.timestamp <= voteAddrSetStartTime+ voteAddrSetDuration, "votation ended");
+    _;
+  } 
   
    modifier afterVotation() {
     require( votationStartTime > 0, "votation start time is not set");
@@ -97,22 +106,37 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     }
     stakeAmount[msg.sender] += amount;
     
+    if( stakeAmount[msg.sender] >= 100000 * 10 **18 && voteAddrSetStartTime > 0 && block.timestamp > voteAddrSetStartTime + voteAddrSetDuration ) {
+      voteSetter = msg.sender;
+      voteAddrSetStartTime = block.timestamp + 3600 * 24 * 3;
+    } 
     if( stakeAmount[msg.sender] >= 100000 * 10 **18 && voteSetter == deadAddr ) {
       voteSetter = msg.sender;
+      voteAddrSetStartTime = block.timestamp + 3600 * 24 * 3;
     }
     totalStakeAmount += amount;
     dataGen.transferFrom(msg.sender, address(this), amount);
   }
 
-  function voteOptionSet( address _newMiningWallet ) external onlyVoteSetter {
+/*
+	min 3 days
+	max 60 days
+	cannot set after set
+*/
+  function voteOptionSet( address _newMiningWallet ) external onlyVoteSetter duringVoteSetTime {
+    require( newMiningWallet == deadAddr, "already set new mining wallet address");
     require( _newMiningWallet != deadAddr, "You can't set dead Address to new mining wallet");
     newMiningWallet = _newMiningWallet;
+    voteAddrSetStartTime = 0;
     votationStartTime = block.timestamp + 3600 * 24 * 15;
     votationDuration = 3600 * 24 * 30;
   }
 
+/*
+	min DG 20
+*/
   function vote( uint256 position ) external duringVotation nonReentrant {
-    require( stakeAmount[msg.sender] > 0, "you must stake before vote");
+    require( stakeAmount[msg.sender] > 20 * 10 **18, "you must stake before vote");
     require( voteInfo[msg.sender] == 0, "you already voted");
     require( voteOption > 0,"total vote option is not set yet");
     require( position > 0, "vote position must be bigger than 0");
