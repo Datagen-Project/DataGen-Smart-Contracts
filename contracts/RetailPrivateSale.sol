@@ -61,10 +61,6 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 		return balanceOfDG[addr];
 	}
 
-	function getETHBalance() public view returns (uint256) {
-		return address(this).balance;
-	}
-
 	function setAmountRaisedDGTest(uint256 _amountRaised) public {
     amountRaisedDG = _amountRaised;
 	}
