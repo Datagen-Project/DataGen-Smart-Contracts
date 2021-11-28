@@ -17,11 +17,11 @@ require('chai').should();
 //     discountLimit = _discountLimit;
 // }
            
-// function setMaxGoalTest(uint256 _maxGoal) public {
-//     maxGoal = _maxGoal;
+// function setAmountRaisedDGTest(uint256 _amountRaised) public {
+//     amountRaisedDG = _amountRaised;
 // }
 
-// function setEndTime(uint256 _endtime) public {
+// function setEndTimeTest(uint256 _endtime) public {
 //     endTime = _endtime;
 // }
 
@@ -37,17 +37,10 @@ contract('RetailPrivateSale', accounts => {
         //Use to test investments
         this.contractOpen = await RetailPrivateSale.new(this.DatagenToken.address, 1631806094, 4129998853, this.USDCToken.address);
 
-        
-        //funding the Presale contract
-        const fundDatagen = new BN('150000000000000000000000');
-        await this.DatagenToken.transfer(this.contractDeployed.address, fundDatagen, {from: accounts[0]});
-
-        //funding closed Presle contract
-        await this.DatagenToken.transfer(this.contractClosed.address, fundDatagen, {from: accounts[0]});
-
         //Funding investors with USDC
         const fundUSDC = new BN('120000000000000000000');
         await this.USDCToken.transfer(accounts[4], fundUSDC, {from: accounts[0]});
+        await this.USDCToken.transfer(accounts[5], fundUSDC, {from: accounts[0]});
     });
     describe('initialise RetailPrivateSale attributes', function() {
         it('has the correct maxGoal', async function() {
@@ -69,7 +62,7 @@ contract('RetailPrivateSale', accounts => {
         //if code remains at actual state see issue on github 
         it('has the correct price for discount token', async function() {
             const price = await this.contractDeployed.price();
-            price.toString().should.equal('70000000000000000');
+            price.toString().should.equal('700000000000000000');
         });
         it('presale must be open', async function() {
             const presaleClosed = await this.contractDeployed.presaleClosed();
@@ -91,14 +84,14 @@ contract('RetailPrivateSale', accounts => {
         it('has to revert if investment is less than 10,00 DG', async function() {
             const investment = new BN('9999999999999999999');
             await expectRevert(
-                this.contractDeployed.invest(investment, {from: accounts[1]}),
+                this.contractOpen.invest(investment, {from: accounts[1]}),
                 'Fund is less than 10,00 DGT'
             );
         });
         it('has to revert if investment is more than 10.0000,00 DG', async function() {
             const investment = new BN('10000000000000000000001');
             await expectRevert(
-                this.contractDeployed.invest(investment, {from: accounts[1]}),
+                this.contractOpen.invest(investment, {from: accounts[1]}),
                 'Fund is more than 10.000,00 DGT'
             );
         });
@@ -114,13 +107,13 @@ contract('RetailPrivateSale', accounts => {
             const balacneOfUSDC = await this.contractOpen.checkFunds(accounts[4]);
             const balanceOfDG = await this.contractOpen.checkDataGenFunds(accounts[4]);
 
-            balacneOfUSDC.toString().should.equal('10500000');
+            balacneOfUSDC.toString().should.equal('10500000000000000000');
             balanceOfDG.toString().should.equal('15000000000000000000');
         });
         it('hat to invest 10DG at normal price of 1DG = 1USDC', async function() {
-            const discountLimit = 10;
+            const amountAlreadyRaised = new BN('15000000000000000000001');
             const investment = new BN('15000000000000000000');
-            await this.contractOpen.setDiscountLimitTest(discountLimit);
+            await this.contractOpen.setAmountRaisedDGTest(amountAlreadyRaised);
             await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
             await this.contractOpen.invest(investment, {from: accounts[4]});
 
@@ -142,7 +135,7 @@ contract('RetailPrivateSale', accounts => {
             const amountRaisedUSDC = await this.contractOpen.amountRaisedUSDC();
             const amountRaisedDG = await this.contractOpen.amountRaisedDG();
 
-            amountRaisedUSDC.toString().should.equal('31500000');
+            amountRaisedUSDC.toString().should.equal('31500000000000000000');
             amountRaisedDG.toString().should.equal('45000000000000000000');
         });
         it('has to emit a corret FundTranfer event', async function() {
@@ -153,9 +146,9 @@ contract('RetailPrivateSale', accounts => {
 
             await expectEvent(receipt, 'FundTransfer', {
                 backer: accounts[4],
-                amountUSDC: '10500000',
+                amountUSDC: '10500000000000000000',
                 isContribution: true,
-                amountRaisedUSDC: '10500000'
+                amountRaisedUSDC: '10500000000000000000'
             });
         });
         it('has to emit a correct GoalReached event', async function() {
@@ -169,14 +162,20 @@ contract('RetailPrivateSale', accounts => {
 
             await expectEvent(receipt, 'GoalReached', {
                 beneficiary: accounts[4],
-                amountRaisedUSDC: '10500000'
+                amountRaisedUSDC: '10500000000000000000'
             });
         });
     });
     describe('Claim Datagen', function() {
+        it("claimDatagen has to revert if presale is open", async function() {
+           await expectRevert(
+               this.contractOpen.claimDataGen(),
+               "Distribution is off."
+           );
+        });
         it('has to revert if balance DG is 0', async function() {
             await expectRevert(
-                this.contractOpen.claimDataGen({from: accounts[4]}),
+                this.contractClosed.claimDataGen({from: accounts[4]}),
                 "Zero #DG contributed."
             );
         });
@@ -185,6 +184,8 @@ contract('RetailPrivateSale', accounts => {
 
             await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
             await this.contractOpen.invest(investment, {from: accounts[4]});
+
+            await this.contractOpen.setEndTimeTest(1631806094);
 
             await expectRevert(
                 this.contractOpen.claimDataGen({from: accounts[4]}),
@@ -200,6 +201,7 @@ contract('RetailPrivateSale', accounts => {
             await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
             await this.contractOpen.invest(investment, {from: accounts[4]});
 
+            await this.contractOpen.setEndTimeTest(1631806094);
             await this.contractOpen.claimDataGen({from: accounts[4]});
 
             const balanceOfDG = await this.DatagenToken.balanceOf(accounts[4]);
@@ -227,8 +229,8 @@ contract('RetailPrivateSale', accounts => {
             await this.contractOpen.withdrawUSDC({from:accounts[0]});
             
             const ownerUSDCBalance = await this.USDCToken.balanceOf(accounts[0]);
-            //accounts[0] is also the owner of USDC so it has the total supply minus the fund transfer to account[4]
-            ownerUSDCBalance.toString().should.equal("14999880000000000010500000");
+            //accounts[0] is also the owner of USDC so it has the total supply minus the fund transfer to account[4] and accounts[5]
+            ownerUSDCBalance.toString().should.equal("14999770500000000000000000");
         });
         it("withdrawDataGen has to revert if caller isn't the owner", async function() {
             await expectRevert(
@@ -236,12 +238,32 @@ contract('RetailPrivateSale', accounts => {
                 "Ownable: caller is not the owner"
             );
         });
-        //to verify
-        // it("owner must be able to withdraw the DG raised", async function() {
-        //     await this.contractClosed.withdrawDataGen({from: accounts[0]});
+        it("withdrawDataGen has to revert if private sale is open", async function() {
+            await expectRevert(
+                this.contractOpen.withdrawDataGen({from: accounts[0]}),
+                "Distribution is off."
+            );
+        });
+        it("withdrawDataGen has to withdraw the correct amount and left enought DG to be claim by investors", async function()
+        {
+            const investment = new BN("15000000000000000000");
+            const amountAlreadyRaised = new BN("15000000000000000000001");
+            const fundDatagen = new BN('150000000000000000000000');
             
-        //     const totalSupply = await this.DatagenToken.balanceOf(accounts[0]);
-        //     totalSupply.toString().should.equal("15000000000000000000000000");
-        // });
+            await this.DatagenToken.transfer(this.contractOpen.address, fundDatagen, {from: accounts[0]});
+            await this.contractOpen.setAmountRaisedDGTest(amountAlreadyRaised);
+
+            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
+            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[5]});
+            await this.contractOpen.invest(investment, {from: accounts[4]});
+            await this.contractOpen.invest(investment, {from: accounts[5]});
+
+            await this.contractOpen.setEndTimeTest(1631806094);
+
+            await this.contractOpen.withdrawDataGen({from: accounts[0]});
+            const balanceOfOwner = await this.DatagenToken.balanceOf(accounts[0]);
+
+            balanceOfOwner.toString().should.equal("14984969999999999999999999");
+        });
     });
 });
