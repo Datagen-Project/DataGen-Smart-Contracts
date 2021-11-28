@@ -24,7 +24,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 
 	/* the price per #DG (in USDC) */
 	/* there are different prices in different time intervals */
-	uint256 public price = 7 * 10**5;
+	uint256 public price = 7 * 10**17;
 
 	address private USDC_ADDRESS;
 
@@ -63,14 +63,6 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		return balanceOfDG[addr];
 	}
 
-	function getETHBalance() public view returns (uint256) {
-		return address(this).balance;
-	}
-
-	function setLockTime(uint256 _lockTime) public {
-		lockTime = _lockTime;
-	}
-
     /* make an investment
      * only callable if the private sale started and hasn't been closed already and the maxGoal wasn't reached yet.
      * the current token price is looked up and the corresponding number of tokens is transfered to the receiver.
@@ -90,20 +82,20 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		/* the amount of the first discounted tokens */
 		uint256 discountLimit2 = 1300000 * (10**18);
 
-		if (balanceOfDG[msg.sender].add(amountDG) <= discountLimit1) {
+		if (amountRaisedDG <= discountLimit1) {
 			amountUSDC = amountDG.mul(price).div(10**18);
-		} else if (balanceOfDG[msg.sender].add(amountDG) <= discountLimit2) {
+		} else if (amountRaisedDG) <= discountLimit2) {
 			uint256 amountDG1 = discountLimit1.sub(balanceOfDG[msg.sender]);
 			uint256 amountDG2 = amountDG.sub(amountDG1);
 			uint256 amountUSDC1 = amountDG1.mul(price).div(10**18);
-			price = 9 * (10**5);
+			price = 9 * (10**17);
 			uint256 amountUSDC2 = amountDG2.mul(price).div(10**18);
 			amountUSDC = amountUSDC1 + amountUSDC2;
 		} else {
 			uint256 amountDG1 = discountLimit2.sub(balanceOfDG[msg.sender]);
 			uint256 amountDG2 = amountDG.sub(amountDG1);
 			uint256 amountUSDC1 = amountDG1.mul(price).div(10**18);
-			price = 11 * (10**5);
+			price = 11 * (10**18);
 			uint256 amountUSDC2 = amountDG2.mul(price).div(10**18);
 			amountUSDC = amountUSDC1 + amountUSDC2;
 		}
