@@ -25,7 +25,7 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 
 	/* the price per #DG (in USDC) */
 	/* there are different prices in different time intervals */
-	uint256 public price = 7 * 10**5;
+	uint256 public price = 7 * 10**17;
 
 	address public USDC_ADDRESS;
 
@@ -65,6 +65,18 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 		return address(this).balance;
 	}
 
+	function setAmountRaisedDGTest(uint256 _amountRaised) public {
+    amountRaisedDG = _amountRaised;
+	}
+           
+	function setMaxGoalTest(uint256 _maxGoal) public {
+    	maxGoal = _maxGoal;
+	}
+
+	function setEndTimeTest(uint256 _endtime) public {
+    	endTime = _endtime;
+	}
+
     /* make an investment
      * only callable if the private sale started and hasn't been closed already and the maxGoal wasn't reached yet.
      * the current token price is looked up and the corresponding number of tokens is transfered to the receiver.
@@ -74,20 +86,21 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
     function invest(uint256 amountDG) external {
 		require(presaleClosed == false && block.timestamp >= startTime && block.timestamp < endTime, "Presale is closed");
 		require(amountDG >= 10 * (10 ** 18), "Fund is less than 10,00 DGT");
-		require(amountDG <= 10000 * (10 ** 18), "Fund is more than 10.000,00 DGT");
+		require(balanceOfDG[msg.sender] + amountDG <= 10000 * (10 ** 18), "Fund is more than 10.000,00 DGT");
 
 		uint256 amountUSDC;
 
-		if (balanceOfDG[msg.sender].add(amountDG) <= discountLimit) {
+		if (amountRaisedDG <= discountLimit) {
 			amountUSDC = amountDG.mul(price).div(10**18);
 		} else {
-			uint256 amountDG1 = discountLimit.sub(balanceOfDG[msg.sender]);
-			uint256 amountDG2 = amountDG.sub(amountDG1);
-			uint256 amountUSDC1 = amountDG1.mul(price).div(10**18);
-			price = 10**6;
-			uint256 amountUSDC2 = amountDG2.mul(price).div(10**18);
-			amountUSDC = amountUSDC1 + amountUSDC2;
 			amountUSDC = amountDG;
+			// uint256 amountDG1 = discountLimit.sub(balanceOfDG[msg.sender]);
+			// uint256 amountDG2 = amountDG.sub(amountDG1);
+			// uint256 amountUSDC1 = amountDG1.mul(price).div(10**18);
+			// price = 10**6;
+			// uint256 amountUSDC2 = amountDG2.mul(price).div(10**18);
+			// amountUSDC = amountUSDC1 + amountUSDC2;
+			// amountUSDC = amountDG;
 		}
 
 		usdc.transferFrom(msg.sender, address(this), amountUSDC);
@@ -111,7 +124,7 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
         _;
     }
 
-	function claimDataGen() public nonReentrant {
+	function claimDataGen() public nonReentrant afterClosed{
 		require(balanceOfDG[msg.sender] > 0, "Zero #DG contributed.");
 		uint256 amount = balanceOfDG[msg.sender];
 		uint256 balance = tokenReward.balanceOf(address(this));
@@ -129,6 +142,7 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 	function withdrawDataGen() public onlyOwner afterClosed{
 		uint256 balance = tokenReward.balanceOf(address(this));
 		require(balance > 0, "Balance is zero.");
-		tokenReward.transfer(owner(), balance);
+		uint256 balanceMinusToClaim = balance - amountRaisedDG;
+		tokenReward.transfer(owner(), balanceMinusToClaim);
 	}
 }
