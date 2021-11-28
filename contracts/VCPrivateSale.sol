@@ -11,7 +11,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     /* the maximum amount of tokens to be sold */
-	uint256 public maxGoal = 2350000 * (10**18);
+	uint256 public constant maxGoal = 2350000 * (10**18);
 	/* how much has been raised by retail investors (in USDC) */
 	uint256 public amountRaisedUSDC;
 	/* how much has been raised by retail investors (in #DG) */
