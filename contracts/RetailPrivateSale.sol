@@ -53,10 +53,6 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 		usdc = IERC20(USDC_ADDRESS);
     }
 
-    /* invest by sending usdc to the contract. */
-    receive () external payable{
-    }
-
 	function checkFunds(address addr) public view returns (uint256) {
 		return balanceOfUSDC[addr];
 	}
