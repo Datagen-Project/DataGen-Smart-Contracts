@@ -11,9 +11,9 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     /* the maximum amount of tokens to be sold */
-	uint256 public constant maxGoal = 150000 * (10**18);
+	uint256 public maxGoal = 150000 * (10**18);
 	/* the amount of the first discounted tokens */
-	uint256 public constant discountLimit = 15000 * (10**18);
+	uint256 public discountLimit = 15000 * (10**18);
 	/* how much has been raised by retail investors (in USDC) */
 	uint256 public amountRaisedUSDC;
 	/* how much has been raised by retail investors (in #DG) */
@@ -61,6 +61,22 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 		return balanceOfDG[addr];
 	}
 
+	function setDiscountLimitTest(uint256 _discountLimit) public {
+    	discountLimit = _discountLimit;
+	}
+           
+	function setAmountRaisedDGTest(uint256 _amountRaised) public {
+    	amountRaisedDG = _amountRaised;
+	}
+
+	function setEndTimeTest(uint256 _endtime) public {
+    	endTime = _endtime;
+	}
+
+	function setMaxGoalTest(uint256 _maxGola) public {
+		maxGoal = _maxGola;
+	}
+
     /* make an investment
      * only callable if the private sale started and hasn't been closed already and the maxGoal wasn't reached yet.
      * the current token price is looked up and the corresponding number of tokens is transfered to the receiver.
@@ -74,17 +90,16 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 
 		uint256 amountUSDC;
 
-		if (amountRaisedDG <= discountLimit) {
+		if (amountRaisedDG + amountDG <= discountLimit) {
 			amountUSDC = amountDG.mul(price).div(10**18);
-		} else {
+		} else if (amountRaisedDG >= discountLimit){
 			amountUSDC = amountDG;
-			// uint256 amountDG1 = discountLimit.sub(balanceOfDG[msg.sender]);
-			// uint256 amountDG2 = amountDG.sub(amountDG1);
-			// uint256 amountUSDC1 = amountDG1.mul(price).div(10**18);
-			// price = 10**6;
-			// uint256 amountUSDC2 = amountDG2.mul(price).div(10**18);
-			// amountUSDC = amountUSDC1 + amountUSDC2;
-			// amountUSDC = amountDG;
+		} else {
+			uint256 fullPrice = (amountRaisedDG + amountDG) - discountLimit;
+			uint256 discountPrice = amountDG - fullPrice;
+
+			discountPrice = discountPrice.mul(price).div(10**18);
+			amountUSDC = discountPrice + fullPrice;
 		}
 
 		usdc.transferFrom(msg.sender, address(this), amountUSDC);
