@@ -38,7 +38,7 @@ contract('RetailPrivateSale', accounts => {
         this.contractOpen = await RetailPrivateSale.new(this.DatagenToken.address, 1631806094, 4129998853, this.USDCToken.address);
 
         //Funding investors with USDC
-        const fundUSDC = new BN('120000000000000000000');
+        const fundUSDC = new BN('15000000000000000000000');
         await this.USDCToken.transfer(accounts[4], fundUSDC, {from: accounts[0]});
         await this.USDCToken.transfer(accounts[5], fundUSDC, {from: accounts[0]});
     });
@@ -97,7 +97,7 @@ contract('RetailPrivateSale', accounts => {
         });
         it('has fund to invest', async function() {
             const balanceOf = await this.USDCToken.balanceOf(accounts[4]);
-            balanceOf.toString().should.equal('120000000000000000000');
+            balanceOf.toString().should.equal('15000000000000000000000');
         });
         it('has to invest 10DG at discunt price of 1DG = 0.7USDC', async function() {
             const investment = new BN('15000000000000000000');
@@ -122,6 +122,60 @@ contract('RetailPrivateSale', accounts => {
 
             balanceOfUSDC.toString().should.equal('15000000000000000000');
             balanceOfDG.toString().should.equal('15000000000000000000');
+        });
+        it("has to invest 10kDG, 1K at discount price and 9k at full price", async function() {
+            const investment = new BN("10000000000000000000000");
+            const amountAlreadyRaised = new BN("14000000000000000000000");
+
+            await this.contractOpen.setAmountRaisedDGTest(amountAlreadyRaised);
+            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
+            
+            const receipt = await this.contractOpen.invest(investment, {from: accounts[4]});
+            await expectEvent(receipt, "FundTransfer", {
+                backer: accounts[4],
+                amountUSDC: "9700000000000000000000",
+                isContribution: true,
+                amountRaisedUSDC: "9700000000000000000000"
+            });
+        });
+        it("has to invest 10kDG, 1K at discount price and 9k at full price, check DG", async function() {
+            const investment = new BN("10000000000000000000000");
+            const amountAlreadyRaised = new BN("14000000000000000000000");
+
+            await this.contractOpen.setAmountRaisedDGTest(amountAlreadyRaised);
+            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
+            
+            await this.contractOpen.invest(investment, {from: accounts[4]});
+            const balanceOfDG = await this.contractOpen.checkDataGenFunds(accounts[4]);
+
+            balanceOfDG.toString().should.equal("10000000000000000000000")
+        });
+        it("hat to invest 10kDG, 9K at discount price and 1k at full price", async function() {
+            const investment = new BN("10000000000000000000000");
+            const amountAlreadyRaised = new BN("6000000000000000000000");
+
+            await this.contractOpen.setAmountRaisedDGTest(amountAlreadyRaised);
+            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
+            
+            const receipt = await this.contractOpen.invest(investment, {from: accounts[4]});
+            await expectEvent(receipt, "FundTransfer", {
+                backer: accounts[4],
+                amountUSDC: "7300000000000000000000",
+                isContribution: true,
+                amountRaisedUSDC: "7300000000000000000000"
+            });
+        });
+        it("has to invest 10kDG, 9K at discount price and 1k at full price, check DG", async function() {
+            const investment = new BN("10000000000000000000000");
+            const amountAlreadyRaised = new BN("6000000000000000000000");
+
+            await this.contractOpen.setAmountRaisedDGTest(amountAlreadyRaised);
+            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
+            
+            await this.contractOpen.invest(investment, {from: accounts[4]});
+            const balanceOfDG = await this.contractOpen.checkDataGenFunds(accounts[4]);
+
+            balanceOfDG.toString().should.equal("10000000000000000000000")
         });
         it('has the correct amount raised', async function() {
             const investment = new BN('15000000000000000000');
@@ -230,7 +284,7 @@ contract('RetailPrivateSale', accounts => {
             
             const ownerUSDCBalance = await this.USDCToken.balanceOf(accounts[0]);
             //accounts[0] is also the owner of USDC so it has the total supply minus the fund transfer to account[4] and accounts[5]
-            ownerUSDCBalance.toString().should.equal("14999770500000000000000000");
+            ownerUSDCBalance.toString().should.equal("14970010500000000000000000");
         });
         it("withdrawDataGen has to revert if caller isn't the owner", async function() {
             await expectRevert(
