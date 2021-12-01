@@ -24,7 +24,9 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 
 	/* the price per #DG (in USDC) */
 	/* there are different prices in different time intervals */
-	uint256 public price = 7 * 10**17;
+	uint256 public constant firstPrice = 7 * 10**17;
+	uint256 public constant secondPrice = 9 * 10**17;
+	uint public constant thirdPrice = 11 * 10**17;
 
 	address private USDC_ADDRESS;
 
@@ -63,6 +65,11 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		return balanceOfDG[addr];
 	}
 
+	//Test functions
+	function setAmountRaisedDGTest(uint256 _amountRaised) public {
+    	amountRaisedDG = _amountRaised;
+	}
+
     /* make an investment
      * only callable if the private sale started and hasn't been closed already and the maxGoal wasn't reached yet.
      * the current token price is looked up and the corresponding number of tokens is transfered to the receiver.
@@ -82,22 +89,30 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		/* the amount of the first discounted tokens */
 		uint256 discountLimit2 = 1300000 * (10**18);
 
-		if (amountRaisedDG <= discountLimit1) {
-			amountUSDC = amountDG.mul(price).div(10**18);
-		} else if (amountRaisedDG) <= discountLimit2) {
-			uint256 amountDG1 = discountLimit1.sub(balanceOfDG[msg.sender]);
-			uint256 amountDG2 = amountDG.sub(amountDG1);
-			uint256 amountUSDC1 = amountDG1.mul(price).div(10**18);
-			price = 9 * (10**17);
-			uint256 amountUSDC2 = amountDG2.mul(price).div(10**18);
-			amountUSDC = amountUSDC1 + amountUSDC2;
-		} else {
-			uint256 amountDG1 = discountLimit2.sub(balanceOfDG[msg.sender]);
-			uint256 amountDG2 = amountDG.sub(amountDG1);
-			uint256 amountUSDC1 = amountDG1.mul(price).div(10**18);
-			price = 11 * (10**18);
-			uint256 amountUSDC2 = amountDG2.mul(price).div(10**18);
-			amountUSDC = amountUSDC1 + amountUSDC2;
+		if (amountRaisedDG + amountDG <= discountLimit1) {
+			amountUSDC = amountDG.mul(firstPrice).div(10**18);
+		} else if (amountRaisedDG >= discountLimit2) {
+			amountUSDC = amountDG.mul(thirdPrice).div(10**18);
+		} else if (amountRaisedDG >= discountLimit1 && amountRaisedDG + amountDG <= discountLimit2) {
+			amountUSDC = amountDG.mul(secondPrice).div(10**18);
+		} else if (amountRaisedDG <= discountLimit1 && amountRaisedDG + amountDG <= discountLimit2) {
+			uint256 amountSecondPrice = (amountRaisedDG + amountDG) - discountLimit1;
+			uint256 amoutnFirstPrice = (amountDG - amountSecondPrice).mul(firstPrice).div(10**18);
+			amountSecondPrice = amountSecondPrice.mul(secondPrice).div(10**18);
+			amountUSDC = amountSecondPrice + amoutnFirstPrice;
+		} else if (amountRaisedDG >= discountLimit1 && amountRaisedDG <= discountLimit2) {
+			uint256 amountThirdPrice = (amountRaisedDG + amountDG) - discountLimit2;
+			uint256 amountSecondPrice = (amountDG - amountThirdPrice).mul(secondPrice).div(10**18);
+			amountThirdPrice = amountThirdPrice.mul(thirdPrice).div(10**18);
+			amountUSDC = amountSecondPrice + amountThirdPrice;
+		} else if (amountRaisedDG <= discountLimit1 && amountDG >= discountLimit2) {
+			uint256 amountThirdPrice = (amountRaisedDG + amountDG) - discountLimit2;
+			uint256 amountSecondPrice = (10**24);
+			uint256 amountFirstPrice = (amountDG - amountRaisedDG - amountThirdPrice - amountSecondPrice).mul(firstPrice).div(10**18);
+
+			amountSecondPrice = amountSecondPrice.mul(secondPrice).div(10**18);
+			amountThirdPrice = amountThirdPrice.mul(thirdPrice).div(10**18);
+			amountUSDC = amountFirstPrice + amountSecondPrice + amountThirdPrice;
 		}
 
 		usdc.transferFrom(msg.sender, address(this), amountUSDC);
