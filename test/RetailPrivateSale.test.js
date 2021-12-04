@@ -220,7 +220,7 @@ contract('RetailPrivateSale', accounts => {
             });
         });
     });
-    describe('Claim Datagen', function() {
+    describe('Claim Datagen and USDC', function() {
         it("claimDatagen has to revert if presale is open", async function() {
            await expectRevert(
                this.contractOpen.claimDataGen(),
