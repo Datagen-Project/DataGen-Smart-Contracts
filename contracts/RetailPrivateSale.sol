@@ -25,7 +25,7 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 
 	/* the price per #DG (in USDC) */
 	/* there are different prices in different time intervals */
-	uint256 public price = 7 * 10**17;
+	uint256 public price = 7 * 10**5;
 
 	address public USDC_ADDRESS;
 
@@ -93,12 +93,13 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 		if (amountRaisedDG + amountDG <= discountLimit) {
 			amountUSDC = amountDG.mul(price).div(10**18);
 		} else if (amountRaisedDG >= discountLimit){
-			amountUSDC = amountDG;
+			amountUSDC = amountDG.div(10**12);
 		} else {
 			uint256 fullPrice = (amountRaisedDG + amountDG) - discountLimit;
 			uint256 discountPrice = amountDG - fullPrice;
 
 			discountPrice = discountPrice.mul(price).div(10**18);
+			fullPrice = fullPrice.div(10**12);
 			amountUSDC = discountPrice + fullPrice;
 		}
 
