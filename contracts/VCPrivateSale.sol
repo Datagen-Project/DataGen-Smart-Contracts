@@ -24,9 +24,9 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 
 	/* the price per #DG (in USDC) */
 	/* there are different prices in different time intervals */
-	uint256 public constant firstPrice = 7 * 10**17;
-	uint256 public constant secondPrice = 9 * 10**17;
-	uint public constant thirdPrice = 11 * 10**17;
+	uint256 public constant firstPrice = 7 * 10**5;
+	uint256 public constant secondPrice = 9 * 10**5;
+	uint public constant thirdPrice = 11 * 10**5;
 
 	address private USDC_ADDRESS;
 
@@ -70,6 +70,22 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
     	amountRaisedDG = _amountRaised;
 	}
 
+	function setBalanceOfDGTest(address account, uint256 balance) public {
+		balanceOfDG[account] = balance;
+	}
+
+	function setTotalBalanceOfTest(address account, uint256 balance) public {
+		totalBalanceOfDG[account] = balance;
+	}
+
+	function setEndTimeTest(uint256 _endTime) public {
+		endTime = _endTime;
+	}
+
+	function setLockTimeTest(uint256 _lockTime) public {
+		lockTime = _lockTime;
+	}
+
     /* make an investment
      * only callable if the private sale started and hasn't been closed already and the maxGoal wasn't reached yet.
      * the current token price is looked up and the corresponding number of tokens is transfered to the receiver.
@@ -97,9 +113,9 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 			amountUSDC = amountDG.mul(secondPrice).div(10**18);
 		} else if (amountRaisedDG <= discountLimit1 && amountRaisedDG + amountDG <= discountLimit2) {
 			uint256 amountSecondPrice = (amountRaisedDG + amountDG) - discountLimit1;
-			uint256 amoutnFirstPrice = (amountDG - amountSecondPrice).mul(firstPrice).div(10**18);
+			uint256 amountFirstPrice = (amountDG - amountSecondPrice).mul(firstPrice).div(10**18);
 			amountSecondPrice = amountSecondPrice.mul(secondPrice).div(10**18);
-			amountUSDC = amountSecondPrice + amoutnFirstPrice;
+			amountUSDC = amountSecondPrice + amountFirstPrice;
 		} else if (amountRaisedDG >= discountLimit1 && amountRaisedDG <= discountLimit2) {
 			uint256 amountThirdPrice = (amountRaisedDG + amountDG) - discountLimit2;
 			uint256 amountSecondPrice = (amountDG - amountThirdPrice).mul(secondPrice).div(10**18);
@@ -158,7 +174,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		tokenReward.transfer(msg.sender, amount);
 	}
 
-	function withdrawUSDC() external onlyOwner afterClosed {
+	function withdrawUSDC() external onlyOwner {
 		uint256 balance = usdc.balanceOf(address(this));
 		require(balance > 0, "Balance is zero.");
 		usdc.transfer(owner(), balance);
