@@ -65,6 +65,10 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		return balanceOfDG[addr];
 	}
 
+	function checkDataGenTotalFunds(address addr) external view returns (uint256) {
+		return totalBalanceOfDG[addr];
+	}
+
 	//Test functions
 	function setAmountRaisedDGTest(uint256 _amountRaised) public {
     	amountRaisedDG = _amountRaised;
