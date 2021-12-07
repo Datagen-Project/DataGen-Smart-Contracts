@@ -174,7 +174,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 
 		require(balance >= amount, "Contract has less fund.");
 
-		balanceOfDG[msg.sender].sub(amount);
+		balanceOfDG[msg.sender] = balanceOfDG[msg.sender].sub(amount);
 		tokenReward.transfer(msg.sender, amount);
 	}
 
