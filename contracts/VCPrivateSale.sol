@@ -26,7 +26,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 	/* there are different prices in different time intervals */
 	uint256 public constant firstPrice = 7 * 10**5;
 	uint256 public constant secondPrice = 9 * 10**5;
-	uint public constant thirdPrice = 11 * 10**5;
+	uint256 public constant thirdPrice = 11 * 10**5;
 
 	address private USDC_ADDRESS;
 
@@ -161,17 +161,21 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		require(totalBalanceOfDG[msg.sender] > 0, "Zero #DG contributed.");
 
 		uint256 epochs = 0;
+		uint256 amount = 0;
+		uint256 maxAmount = 0;
 		if (block.timestamp < lockTime) {
-			epochs = 1;
+			maxAmount = totalBalanceOfDG[msg.sender].div(10);
+			amount = maxAmount.sub(totalBalanceOfDG[msg.sender].sub(balanceOfDG[msg.sender]));
 		} else {
 			epochs = block.timestamp.sub(lockTime).div(30 * 24 * 3600).add(1);
 			if (epochs > 10) epochs = 10;
+			
+			maxAmount = (totalBalanceOfDG[msg.sender] - totalBalanceOfDG[msg.sender].div(10)).mul(epochs).div(10);
+			amount = maxAmount.sub((totalBalanceOfDG[msg.sender] - totalBalanceOfDG[msg.sender].div(10)).sub(balanceOfDG[msg.sender]));
 		}
 		
-		uint256 maxAmount = totalBalanceOfDG[msg.sender].mul(epochs).div(10);
-		uint256 amount = maxAmount.sub(totalBalanceOfDG[msg.sender].sub(balanceOfDG[msg.sender]));
+	
 		uint256 balance = tokenReward.balanceOf(address(this));
-
 		require(balance >= amount, "Contract has less fund.");
 
 		balanceOfDG[msg.sender] = balanceOfDG[msg.sender].sub(amount);
