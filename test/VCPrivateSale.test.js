@@ -20,9 +20,9 @@ contract("VCPrivateSale", accounts => {
         //Use to test migration attributes 
         this.contractDeployed = await VCPrivateSale.deployed(); //use when nedd to test migration parameters
         //Use to test contract closed situations
-        this.contractClosed = await VCPrivateSale.new(this.DatagenToken.address, 1631806094, 1631806094, 163180694, this.USDCToken.address); //closed VC
+        this.contractClosed = await VCPrivateSale.new(this.DatagenToken.address, 1631806094, 1631806094, this.USDCToken.address); //closed VC
         //Use to test investments
-        this.contractOpen = await VCPrivateSale.new(this.DatagenToken.address, 1631806094, 1764619205, 1764619205, this.USDCToken.address);
+        this.contractOpen = await VCPrivateSale.new(this.DatagenToken.address, 1631806094, 1764619205, this.USDCToken.address);
 
         //Funding investors with USDC
         const fundUSDC = new BN("10000000000000");
@@ -52,12 +52,15 @@ contract("VCPrivateSale", accounts => {
         });
         it("has the correct end time", async function() {
             const endTime = await this.contractDeployed.endTime();
-            endTime.toString().should.equal("1638193214");
+            endTime.toString().should.equal("1645535464");
             // got to truffle migration file and check if VCEndTime is correct
         });
         it("has the correct lock time", async function() {
+            const endTime = await this.contractDeployed.endTime();
             const lockTime = await this.contractDeployed.lockTime();
-            lockTime.toString().should.equal("1631816094");
+            
+            const correctLockTime = parseInt(endTime) + 7776000;
+            lockTime.toString().should.equal(correctLockTime.toString());
         });
         it("presale must be open", async function() {
             const presaleClosed = await this.contractDeployed.presaleClosed();
