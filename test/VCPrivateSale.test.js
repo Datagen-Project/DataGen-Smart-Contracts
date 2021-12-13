@@ -12,6 +12,28 @@ const balance = require("@openzeppelin/test-helpers/src/balance");
 
 require("chai").should();
 
+//@dev  In order to test this functionalities you must add this functions in VCPrivateSale.sol
+
+// function setAmountRaisedDGTest(uint256 _amountRaised) public {
+//     amountRaisedDG = _amountRaised;
+// }
+
+// function setBalanceOfDGTest(address account, uint256 balance) public {
+//     balanceOfDG[account] = balance;
+// }
+
+// function setTotalBalanceOfTest(address account, uint256 balance) public {
+//     totalBalanceOfDG[account] = balance;
+// }
+
+// function setEndTimeTest(uint256 _endTime) public {
+//     endTime = _endTime;
+// }
+
+// function setLockTimeTest(uint256 _lockTime) public {
+//     lockTime = _lockTime;
+// }
+
 contract("VCPrivateSale", accounts => {
     beforeEach(async function() {
         this.DatagenToken = await DataGen.new();
