@@ -16,13 +16,17 @@ require("chai").should();
 // function setDiscountLimitTest(uint256 _discountLimit) public {
 //     discountLimit = _discountLimit;
 // }
-           
+       
 // function setAmountRaisedDGTest(uint256 _amountRaised) public {
 //     amountRaisedDG = _amountRaised;
 // }
 
 // function setEndTimeTest(uint256 _endtime) public {
 //     endTime = _endtime;
+// }
+
+// function setMaxGoalTest(uint256 _maxGola) public {
+//     maxGoal = _maxGola;
 // }
 
 contract("RetailPrivateSale", accounts => {

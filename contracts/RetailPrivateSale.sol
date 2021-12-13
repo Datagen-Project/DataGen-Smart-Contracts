@@ -61,22 +61,6 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 		return balanceOfDG[addr];
 	}
 
-	function setDiscountLimitTest(uint256 _discountLimit) public {
-    	discountLimit = _discountLimit;
-	}
-           
-	function setAmountRaisedDGTest(uint256 _amountRaised) public {
-    	amountRaisedDG = _amountRaised;
-	}
-
-	function setEndTimeTest(uint256 _endtime) public {
-    	endTime = _endtime;
-	}
-
-	function setMaxGoalTest(uint256 _maxGola) public {
-		maxGoal = _maxGola;
-	}
-
     /* make an investment
      * only callable if the private sale started and hasn't been closed already and the maxGoal wasn't reached yet.
      * the current token price is looked up and the corresponding number of tokens is transfered to the receiver.
