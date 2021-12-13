@@ -27,8 +27,8 @@ contract DataGen is Ownable, IERC20 {
      */
     constructor () {
         // Initial Minting to Owner
-        _balances[msg.sender] = 15000000 * (10 ** 18);
-        _totalSupply = 15000000 * (10 ** 18);
+        _balances[msg.sender] = 30000000 * (10 ** 18);
+        _totalSupply = 30000000 * (10 ** 18);
     }
 
     /**
@@ -191,29 +191,6 @@ contract DataGen is Ownable, IERC20 {
         _balances[recipient] += amount;
 
         emit Transfer(sender, recipient, amount);
-    }
-
-    /** @dev Creates `amount` tokens and assigns them to `account`, increasing
-     * the total supply.
-     *
-     * Emits a {Transfer} event with `from` set to the zero address.
-     *
-     * Requirements:
-     *
-     * - `to` cannot be the zero address.
-     */
-    function mint(address account, uint256 amount) external onlyOwner {
-        require(account != address(0), "ERC20: mint to the zero address");
-        require(_maxSupply > _totalSupply, "Minting is Finished.");
-
-        uint256 _amount = _maxSupply - _totalSupply;
-        if (_amount > amount) {
-            _amount = amount;
-        }
-
-        _totalSupply += _amount;
-        _balances[account] += _amount;
-        emit Transfer(address(0), account, _amount);
     }
 
     /**

@@ -27,11 +27,11 @@ contract('DataGen', accounts => {
         });
         it('has the correct total supply', async function() {
             const totalSupply = await this.token.totalSupply();
-            totalSupply.toString().should.equal('15000000000000000000000000') // 15M * 10^18
+            totalSupply.toString().should.equal('30000000000000000000000000') // 15M * 10^18
         });
         it('has the correct initial owner balance', async function() {
             const ownerBalance = await this.token.balanceOf(accounts[0])
-            ownerBalance.toString().should.equal('15000000000000000000000000')
+            ownerBalance.toString().should.equal('30000000000000000000000000')
         });
     });
 
@@ -40,7 +40,7 @@ contract('DataGen', accounts => {
             await this.token.transfer(accounts[1], 100, {from: accounts[0]})
             const account1Balance = await this.token.balanceOf(accounts[1]);
             const account0Balance = await this.token.balanceOf(accounts[0]);
-            account0Balance.toString().should.equal('14999999999999999999999900')
+            account0Balance.toString().should.equal('29999999999999999999999900')
             account1Balance.toString().should.equal('100')
         });
         // it('has to revert if sender is zero address', async function() {
@@ -137,39 +137,39 @@ contract('DataGen', accounts => {
         });
     });
 
-    describe('Mint DataGen', async function() {
-        it('has to revert if mint to the zero address', async function() {
-            await expectRevert(
-                this.token.mint(constants.ZERO_ADDRESS, 100, {from: accounts[0]}),
-                'ERC20: mint to the zero address'
-            );
-        });
-        it('has to revert if minting is finished', async function() {
-            await this.token.mint(accounts[1], constants.MAX_UINT256);
-            await expectRevert(
-                this.token.mint(accounts[1], 1),
-                'Minting is Finished.'
-            );
-        });
-        it('has to increse total supply by 100 DG', async function() {
-            await this.token.mint(accounts[1], 100);
-            const totalSupply = await this.token.totalSupply();
-            totalSupply.toString().should.equal('15000000000000000000000100');
-        });
-        it('has to increse account balance by 100 DG', async function() {
-            await this.token.mint(accounts[1], 100);
-            const account1Balance = await this.token.balanceOf(accounts[1]);
-            account1Balance.toString().should.equal('100');
-        });
-        it('has to emit a Transfer event', async function() {
-            const receipt = await this.token.mint(accounts[1], 100);
-            await expectEvent(receipt, 'Transfer', {
-                from: constants.ZERO_ADDRESS,
-                to: accounts[1],
-                value: '100',
-            });
-        });
-    });
+    // describe('Mint DataGen', async function() {
+    //     it('has to revert if mint to the zero address', async function() {
+    //         await expectRevert(
+    //             this.token.mint(constants.ZERO_ADDRESS, 100, {from: accounts[0]}),
+    //             'ERC20: mint to the zero address'
+    //         );
+    //     });
+    //     it('has to revert if minting is finished', async function() {
+    //         await this.token.mint(accounts[1], constants.MAX_UINT256);
+    //         await expectRevert(
+    //             this.token.mint(accounts[1], 1),
+    //             'Minting is Finished.'
+    //         );
+    //     });
+    //     it('has to increse total supply by 100 DG', async function() {
+    //         await this.token.mint(accounts[1], 100);
+    //         const totalSupply = await this.token.totalSupply();
+    //         totalSupply.toString().should.equal('15000000000000000000000100');
+    //     });
+    //     it('has to increse account balance by 100 DG', async function() {
+    //         await this.token.mint(accounts[1], 100);
+    //         const account1Balance = await this.token.balanceOf(accounts[1]);
+    //         account1Balance.toString().should.equal('100');
+    //     });
+    //     it('has to emit a Transfer event', async function() {
+    //         const receipt = await this.token.mint(accounts[1], 100);
+    //         await expectEvent(receipt, 'Transfer', {
+    //             from: constants.ZERO_ADDRESS,
+    //             to: accounts[1],
+    //             value: '100',
+    //         });
+    //     });
+    // });
 
     describe('Burn DataGen', async function() {
         it('has to revert if burn from zero address', async function() {
@@ -187,12 +187,12 @@ contract('DataGen', accounts => {
         it('has to decrease account balance by 100 DG', async function() {
             await this.token.burn(accounts[0], 100);
             const account0Balance = await this.token.balanceOf(accounts[0]);
-            account0Balance.toString().should.equal('14999999999999999999999900');
+            account0Balance.toString().should.equal('29999999999999999999999900');
         });
         it('has to decrease total supply by 100 DG', async function() {
             await this.token.burn(accounts[0], 100);
             const totalSupply = await this.token.totalSupply();
-            totalSupply.toString().should.equal('14999999999999999999999900');
+            totalSupply.toString().should.equal('29999999999999999999999900');
         });
         it('has to emit Transfer event', async function() {
             const receipt = await this.token.burn(accounts[0], 100);
