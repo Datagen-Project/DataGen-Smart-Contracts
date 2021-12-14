@@ -25,6 +25,10 @@ require("chai").should();
 //     endTime = _endtime;
 // }
 
+// function setMaxGoalTest(uint256 _maxGola) public {
+//     maxGoal = _maxGola;
+// }
+
 contract("RetailPrivateSale", accounts => {
     beforeEach(async function () {
         this.DatagenToken = await DataGen.new();
