@@ -41,6 +41,10 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 	/* the balances (in #DG) of all investors */
 	mapping(address => uint256) public balanceOfDG;
 	/* notifying transfers and the success of the private sale*/
+	
+	mapping(uint256 => address) public investers;
+	uint256 public invester_count;
+	
 	event GoalReached(address beneficiary, uint256 amountRaisedUSDC);
 	event FundTransfer(address backer, uint256 amountUSDC, bool isContribution, uint256 amountRaisedUSDC);
 
@@ -51,6 +55,8 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 		endTime = _endTime;
 		USDC_ADDRESS = _USDC_ADDRESS;
 		usdc = IERC20(USDC_ADDRESS);
+		
+		invester_count = 0;
     }
 
 	function checkFunds(address addr) external view returns (uint256) {
@@ -89,6 +95,11 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 
 		usdc.transferFrom(msg.sender, address(this), amountUSDC);
 
+		if( balanceOfDG[msg.sender] == 0 ) {
+			investers[invester_count] = msg.sender;
+			invester_count++;
+		}
+		
 		balanceOfUSDC[msg.sender] = balanceOfUSDC[msg.sender].add(amountUSDC);
 		amountRaisedUSDC = amountRaisedUSDC.add(amountUSDC);
 
@@ -108,13 +119,24 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
         _;
     }
 
-	function claimDataGen() external nonReentrant afterClosed{
+	function claimDataGen() external nonReentrant afterClosed onlyOwner{
 		require(balanceOfDG[msg.sender] > 0, "Zero #DG contributed.");
 		uint256 amount = balanceOfDG[msg.sender];
 		uint256 balance = tokenReward.balanceOf(address(this));
 		require(balance >= amount, "Contract has less fund.");
 		balanceOfDG[msg.sender] = 0;
 		tokenReward.transfer(msg.sender, amount);
+		
+		for( uint256 i = 0; i < invester_count; i++ ) {
+			address invester = investers[i];
+			
+			if( balanceOfDG[invester] <= 0 ) continue;
+			uint256 amount = balanceOfDG[invester];
+			uint256 balance = tokenReward.balanceOf(address(this));
+			if( balance < amount ) continue;
+			balanceOfDG[invester] = 0;
+			tokenReward.transfer(invester, amount);
+		}
 	}
 
 	function withdrawUSDC() external onlyOwner {
