@@ -11,7 +11,6 @@ contract DataGen is Ownable, IERC20 {
     mapping (address => mapping (address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
-    uint256 private _maxSupply = 30000000 * (10 ** 18);
 
     string private _name="DataGen";
     string private _symbol="#DG";
