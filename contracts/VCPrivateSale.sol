@@ -44,6 +44,8 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 	/* the total balances (in #DG) of all investors */
 	mapping(address => uint256) public totalBalanceOfDG;
 	/* notifying transfers and the success of the private sale*/
+	mapping(uint256 => address) public investers;
+	uint256 public invester_count;
 	event GoalReached(address beneficiary, uint256 amountRaisedUSDC);
 	event FundTransfer(address backer, uint256 amountUSDC, bool isContribution, uint256 amountRaisedUSDC);
 
@@ -55,6 +57,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		lockTime = _endTime + 90 * 24 * 3600;
 		USDC_ADDRESS = _USDC_ADDRESS;
 		usdc = IERC20(USDC_ADDRESS);
+		invester_count = 0;
     }
 
 	function checkFunds(address addr) external view returns (uint256) {
@@ -137,6 +140,11 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 
 		usdc.transferFrom(msg.sender, address(this), amountUSDC);
 
+		if( totalBalanceOfDG[msg.sender] == 0 ) {
+			investers[invester_count] = msg.sender;
+			invester_count++;
+		}
+
 		balanceOfUSDC[msg.sender] = balanceOfUSDC[msg.sender].add(amountUSDC);
 		amountRaisedUSDC = amountRaisedUSDC.add(amountUSDC);
 
@@ -157,29 +165,32 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
         _;
     }
 
-	function claimDataGen() external afterClosed nonReentrant {
-		require(totalBalanceOfDG[msg.sender] > 0, "Zero #DG contributed.");
+	function claimDataGen() external afterClosed nonReentrant onlyOwner {
+		for( uint256 i = 0; i < invester_count; i++ ) {
+			address invester = investers[i];
+			if( totalBalanceOfDG[invester] <= 0 ) continue;
 
-		uint256 epochs = 0;
-		uint256 amount = 0;
-		uint256 maxAmount = 0;
-		if (block.timestamp < lockTime) {
-			maxAmount = totalBalanceOfDG[msg.sender].div(10);
-			amount = maxAmount.sub(totalBalanceOfDG[msg.sender].sub(balanceOfDG[msg.sender]));
-		} else {
-			epochs = block.timestamp.sub(lockTime).div(30 * 24 * 3600).add(1);
-			if (epochs > 10) epochs = 10;
+			uint256 epochs = 0;
+			uint256 amount = 0;
+			uint256 maxAmount = 0;
+			if (block.timestamp < lockTime) {
+				maxAmount = totalBalanceOfDG[invester].div(10);
+				amount = maxAmount.sub(totalBalanceOfDG[invester].sub(balanceOfDG[invester]));
+			} else {
+				epochs = block.timestamp.sub(lockTime).div(30 * 24 * 3600).add(1);
+				if (epochs > 10) epochs = 10;
+				
+				maxAmount = (totalBalanceOfDG[invester] - totalBalanceOfDG[invester].div(10)).mul(epochs).div(10);
+				amount = maxAmount.sub((totalBalanceOfDG[invester] - totalBalanceOfDG[invester]).sub(balanceOfDG[invester]));
+			}
 			
-			maxAmount = (totalBalanceOfDG[msg.sender] - totalBalanceOfDG[msg.sender].div(10)).mul(epochs).div(10);
-			amount = maxAmount.sub((totalBalanceOfDG[msg.sender] - totalBalanceOfDG[msg.sender].div(10)).sub(balanceOfDG[msg.sender]));
-		}
 		
-	
-		uint256 balance = tokenReward.balanceOf(address(this));
-		require(balance >= amount, "Contract has less fund.");
+			uint256 balance = tokenReward.balanceOf(address(this));
+			if( balance < amount ) continue;
 
-		balanceOfDG[msg.sender] = balanceOfDG[msg.sender].sub(amount);
-		tokenReward.transfer(msg.sender, amount);
+			balanceOfDG[invester] = balanceOfDG[invester].sub(amount);
+			tokenReward.transfer(invester, amount);
+		}
 	}
 
 	function withdrawUSDC() external onlyOwner {

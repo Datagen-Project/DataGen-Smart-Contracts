@@ -8,7 +8,7 @@
  * gradually released in three release events, one each 30 days from the May 1st 2022).
  * 30% of #DG(510,000.00 #DG) will be locked until 1st May 2023 (and gradually released in three 
  * release events, one each 30 days from the May 1st 2023).
- * remaining 30% will be locked until 31st December 2023 and released gradually in three years 
+ * remaining 30% will be locked until 31st December 2023 and released gradually in four years 
  * from then, so in 48 release events (one each 30 days).
  */
 
