@@ -50,11 +50,11 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 	event FundTransfer(address backer, uint256 amountUSDC, bool isContribution, uint256 amountRaisedUSDC);
 
     /*  initialization, set the token address */
-    constructor(IERC20 _token, uint256 _startTime, uint256 _endTime, address _USDC_ADDRESS) {
+    constructor(IERC20 _token, uint256 _startTime, uint256 _endTime, uint256 _lockTime, address _USDC_ADDRESS) {
         tokenReward = _token;
 		startTime = _startTime;
 		endTime = _endTime;
-		lockTime = _endTime + 90 * 24 * 3600;
+		lockTime = _lockTime;
 		USDC_ADDRESS = _USDC_ADDRESS;
 		usdc = IERC20(USDC_ADDRESS);
 		invester_count = 0;
