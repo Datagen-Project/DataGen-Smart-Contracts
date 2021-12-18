@@ -12,6 +12,9 @@ const companyWallet = "0x40985df70659b5E81aE5838d6c88796cAa9b0c6c";
 const aWallet = "0x63F0aB2B6c23dF32b7dCa489717a12D800CDb96E";
 const lWallet = "0x3Ee4d1c7EaE445bB57c865D4B176BeD31703822b";
 
+const USDC_address = "0x438a84B53C7Be4E6AFd2273c5623CD0605B7e190"
+
+
 //Set time to the VC contract
 const VCStartTime = "1639652400";
 const VCEndTime = "1639998000";
