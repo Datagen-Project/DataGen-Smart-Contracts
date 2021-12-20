@@ -6,7 +6,7 @@ const {
     expectEvent,  // Assertions for emitted events
     expectRevert, // Assertions for transactions that should fail
     BN,
-} = require("openzeppelin-test-helpers");
+} = require("@openzeppelin/test-helpers");
 const { Account } = require("ethereumjs-util");
 
 require("chai").should();
@@ -180,6 +180,18 @@ contract("RetailPrivateSale", accounts => {
             const balanceOfDG = await this.contractOpen.checkDataGenFunds(accounts[4]);
 
             balanceOfDG.toString().should.equal("10000000000000000000000")
+        });
+        it("has to invest 20kDG, 15k at discount price and 5k at full price", async function () {
+            const investment = new BN("10000000000000000000000")
+
+            await this.USDCToken.approve(this.contractOpen.address, investment, { from:accounts[4]} )
+            await this.USDCToken.approve(this.contractOpen.address, investment, { from:accounts[5]} )
+            await this.contractOpen.invest(investment, {from: accounts[4]});
+            await this.contractOpen.invest(investment, {from: accounts[5]});
+
+            const amountRaisedUSDC = await this.contractOpen.amountRaisedUSDC();
+            amountRaisedUSDC.toString().should.equal("15500000000");
+
         });
         it("has the correct amount raised", async function () {
             const investment = new BN("15000000000000000000");
