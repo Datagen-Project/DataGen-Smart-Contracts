@@ -119,14 +119,7 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
         _;
     }
 
-	function claimDataGen() external nonReentrant afterClosed onlyOwner{
-		require(balanceOfDG[msg.sender] > 0, "Zero #DG contributed.");
-		uint256 amount = balanceOfDG[msg.sender];
-		uint256 balance = tokenReward.balanceOf(address(this));
-		require(balance >= amount, "Contract has less fund.");
-		balanceOfDG[msg.sender] = 0;
-		tokenReward.transfer(msg.sender, amount);
-		
+	function claimDataGen() external nonReentrant afterClosed onlyOwner{	
 		for( uint256 i = 0; i < invester_count; i++ ) {
 			address invester = investers[i];
 			
