@@ -81,7 +81,7 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
       if(leftSalary[msg.sender] > mainSalary[msg.sender].sub(firstReleaseAmount)) {
         uint256 releaseLeft = leftSalary[msg.sender].sub(mainSalary[msg.sender].sub(firstReleaseAmount));
         dataGen.transfer(msg.sender, releaseLeft);
-        leftSalary[msg.sender] = leftSalary[msg.sender].div(releaseLeft);
+        leftSalary[msg.sender] = leftSalary[msg.sender].sub(releaseLeft);
       }
 
       uint256 epochs = block.timestamp.sub(lockTime1).div(30 * 24 * 3600).add(2);
@@ -105,7 +105,7 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
       if(leftSalary[msg.sender] > mainSalary[msg.sender].sub(secondReleaseAmount)) {
         uint256 releaseLeft = leftSalary[msg.sender].sub(mainSalary[msg.sender].sub(secondReleaseAmount));
         dataGen.transfer(msg.sender, releaseLeft);
-        leftSalary[msg.sender] = leftSalary[msg.sender].div(releaseLeft);
+        leftSalary[msg.sender] = leftSalary[msg.sender].sub(releaseLeft);
       }
 
       uint256 epochs = block.timestamp.sub(lockTime2).div(30 * 24 * 3600).add(5);
@@ -129,7 +129,7 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
       if(leftSalary[msg.sender] > mainSalary[msg.sender].sub(thirdReleaseAmount)) {
         uint256 releaseLeft = leftSalary[msg.sender].sub(mainSalary[msg.sender].sub(thirdReleaseAmount));
         dataGen.transfer(msg.sender, releaseLeft);
-        leftSalary[msg.sender] = leftSalary[msg.sender].div(releaseLeft);
+        leftSalary[msg.sender] = leftSalary[msg.sender].sub(releaseLeft);
       }
 
       uint256 epochs = block.timestamp.sub(lockTime3).div(30 * 24 * 3600).add(1);
