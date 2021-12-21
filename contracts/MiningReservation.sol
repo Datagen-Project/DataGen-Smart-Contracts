@@ -47,12 +47,15 @@ contract MiningReservation is Ownable, ReentrancyGuard {
 	IERC20 public dataGen;
 
   /* Dead address */
-  address miningWallet = 0x000000000000000000000000000000000000dEaD;
+  address[] miningWallet;
+  uint[] percent;
+  uint countMiningWallet;
   address deadAddr = 0x000000000000000000000000000000000000dEaD;
-  address newMiningWallet = 0x000000000000000000000000000000000000dEaD;
+  address[] newMiningWallet;
+  uint[] new_percent;
 
 
-  event SetMiningWalletAddress(address indexed user, address indexed miningWallet); 
+  event SetMiningWalletAddress(address indexed user, address[] indexed miningWallet); 
 
 
   modifier duringVotation() {
@@ -83,15 +86,23 @@ contract MiningReservation is Ownable, ReentrancyGuard {
   /*  initialization, set the token address */
   constructor(IERC20 _dataGen) {
     dataGen = _dataGen;
+    countMiningWallet = 1;
+    miningWallet[countMiningWallet-1] = deadAddr;
+    percent[countMiningWallet-1] = 100;
+    newMiningWallet[countMiningWallet-1] = deadAddr;
   }
 
-  function setMiningWallet(address _miningWallet) internal afterVotation {
+  function setMiningWallet(address[] memory _miningWallet, uint[] memory _percent) internal afterVotation {
     miningWallet = _miningWallet;
+    percent = _percent;
+    countMiningWallet = _percent.length;
 
     votationStartTime = 0;
     votationDuration = 0;
     voteSetter = deadAddr;
-    newMiningWallet = deadAddr;
+    address[] memory tempWallet;
+    tempWallet[0] = deadAddr;
+    newMiningWallet = tempWallet;
 
     emit SetMiningWalletAddress(msg.sender, miningWallet);
   }
@@ -123,10 +134,20 @@ contract MiningReservation is Ownable, ReentrancyGuard {
 	max 60 days
 	cannot set after set
 */
-  function voteOptionSet( address _newMiningWallet ) external onlyVoteSetter duringVoteSetTime {
-    require( newMiningWallet == deadAddr, "already set new mining wallet address");
-    require( _newMiningWallet != deadAddr, "You can't set dead Address to new mining wallet");
+  function voteOptionSet( address[] memory _newMiningWallet, uint[] memory _percent ) external onlyVoteSetter duringVoteSetTime {
+    require( newMiningWallet.length == 1 && newMiningWallet[0] == deadAddr, "already set new mining wallet address");
+    
+    uint len_percent = _percent.length;
+    uint len_wallet = _newMiningWallet.length;
+    require( len_percent == len_wallet, "miningwallet and percent count are not match");
+    uint total_percent = 0;
+    for( uint i = 0; i < len_percent; i++ ) {
+      total_percent += _percent[i];
+    }
+    require( total_percent == 100, "total percent must be 100");
+
     newMiningWallet = _newMiningWallet;
+    new_percent = _percent;
     voteAddrSetStartTime = 0;
     votationStartTime = block.timestamp + 3600 * 24 * 15;
     votationDuration = 3600 * 24 * 30;
@@ -178,8 +199,12 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     totalStakeAmount = 0;
     stakerCount = 0;
 
-    if( winnerInfo == 1 ) setMiningWallet(deadAddr);
-    else if( winnerInfo == 2 ) setMiningWallet(newMiningWallet);
+    uint[] memory tempPercent;
+    tempPercent[0] = 100;
+    address[] memory tempAddr;
+    tempAddr[0] = deadAddr;
+    if( winnerInfo == 1 ) setMiningWallet(tempAddr, tempPercent);
+    else if( winnerInfo == 2 ) setMiningWallet(newMiningWallet, new_percent);
 
     return winnerInfo;
   }
@@ -214,7 +239,10 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     uint256 transferAmount = balance.sub(leftAmount);
     if(transferAmount > 0) {
       require(balance >= transferAmount, "Wrong amount to transfer");
-      dataGen.transfer(miningWallet, transferAmount);
+      for( uint i = 0; i < countMiningWallet; i++ ) {
+        uint amount = transferAmount * percent[i] / 100;
+        dataGen.transfer(miningWallet[i], amount);
+      }
     }
 	}
 }
