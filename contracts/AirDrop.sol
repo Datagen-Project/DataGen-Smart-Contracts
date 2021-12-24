@@ -7,7 +7,8 @@ contract AirDrop {
     /* the address of the token contract */
     IERC20 public dataGen;
     address public owner;
-  
+
+    mapping( string => uint256 ) referralCodes;
     event TransferredToken(address indexed to, uint256 value);
     event FailedTransfer(address indexed to, uint256 value);
 
@@ -26,14 +27,18 @@ contract AirDrop {
         owner = newOwner;
     }
   
-    // this function can be used when you want to send same number of tokens to all the recipients
-    function sendTokensSingleValue(address[] memory dests, uint256 value) onlyOwner external {
-        uint256 i = 0;
-        uint256 toSend = value *10^18; // Change 10^18  - change the 18 to whatever decimal that your ERC20 Token uses
-        while (i < dests.length) {
-            sendInternally(dests[i] , toSend, value);
-            i++;
+    function setReferralCode( string[] memory codes, uint256 value ) onlyOwner external {
+        for( uint i = 0; i < codes.length; i++ ) {
+            string memory myCode = codes[i];
+            if( referralCodes[myCode] == 0 ) referralCodes[myCode] = value;
         }
+    }
+
+    function getAirdrop( string memory code ) external {
+        uint value = referralCodes[code];
+        require( value > 0, "Code is incorrect");
+        uint256 toSend = value * 10 ** 18;
+        sendInternally(msg.sender, toSend, value);
     }
 
     function sendInternally(address recipient, uint256 tokensToSend, uint256 valueToPresent) internal {
