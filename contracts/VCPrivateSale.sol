@@ -47,7 +47,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 	mapping(uint256 => address) public investers;
 	uint256 public invester_count;
 	event GoalReached(address beneficiary, uint256 amountRaisedUSDC);
-	event FundTransfer(address backer, uint256 amountUSDC, bool isContribution, uint256 amountRaisedUSDC);
+	event FundTransfer(address backer, uint256 amountUSDC, bool isContribution, uint256 amountRaisedUSDC, uint256 amountRaisedDG);
 
     /*  initialization, set the token address */
     constructor(IERC20 _token, uint256 _startTime, uint256 _endTime, address _USDC_ADDRESS) {
@@ -136,7 +136,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 			emit GoalReached(msg.sender, amountRaisedUSDC);
 		}
 		
-        emit FundTransfer(msg.sender, amountUSDC, true, amountRaisedUSDC);
+        emit FundTransfer(msg.sender, amountUSDC, true, amountRaisedUSDC, amountRaisedDG);
     }
 
     modifier afterClosed() {
