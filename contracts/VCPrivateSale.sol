@@ -72,6 +72,26 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 		return totalBalanceOfDG[addr];
 	}
 
+	function setAmountRaisedDGTest(uint256 _amountRaised) public {
+    amountRaisedDG = _amountRaised;
+	}
+
+	function setBalanceOfDGTest(address account, uint256 balance) public {
+		balanceOfDG[account] = balance;
+	}
+
+	function setTotalBalanceOfTest(address account, uint256 balance) public {
+		totalBalanceOfDG[account] = balance;
+	}
+
+	function setEndTimeTest(uint256 _endTime) public {
+		endTime = _endTime;
+	}
+
+	function setLockTimeTest(uint256 _lockTime) public {
+		lockTime = _lockTime;
+	}
+
     /* make an investment
      * only callable if the private sale started and hasn't been closed already and the maxGoal wasn't reached yet.
      * the current token price is looked up and the corresponding number of tokens is transfered to the receiver.
@@ -160,7 +180,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 				if (epochs > 10) epochs = 10;
 				
 				maxAmount = (totalBalanceOfDG[invester] - totalBalanceOfDG[invester].div(10)).mul(epochs).div(10);
-				amount = maxAmount.sub((totalBalanceOfDG[invester] - totalBalanceOfDG[invester]).sub(balanceOfDG[invester]));
+				amount = maxAmount.sub((totalBalanceOfDG[invester] - totalBalanceOfDG[invester].div(10)).sub(balanceOfDG[invester]));
 			}
 			
 		
