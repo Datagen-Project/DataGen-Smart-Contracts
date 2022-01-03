@@ -36,8 +36,9 @@ contract AirDrop {
 
     function getAirdrop( string memory code ) external {
         uint value = referralCodes[code];
-        require( value > 0, "Code is incorrect");
+        require( value > 0, "Code is incorrect or already used");
         uint256 toSend = value * 10 ** 18;
+        referralCodes[code] = 0;
         sendInternally(msg.sender, toSend, value);
     }
 
