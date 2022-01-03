@@ -160,7 +160,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 				if (epochs > 10) epochs = 10;
 				
 				maxAmount = (totalBalanceOfDG[invester] - totalBalanceOfDG[invester].div(10)).mul(epochs).div(10);
-				amount = maxAmount.sub((totalBalanceOfDG[invester] - totalBalanceOfDG[invester]).sub(balanceOfDG[invester]));
+				amount = maxAmount.sub((totalBalanceOfDG[invester] - totalBalanceOfDG[invester].div(10)).sub(balanceOfDG[invester]));
 			}
 			
 		
