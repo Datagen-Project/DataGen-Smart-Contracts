@@ -9,6 +9,7 @@ contract AirDrop {
     address public owner;
 
     mapping( string => uint256 ) referralCodes;
+    mapping( address => uint256 ) claimedCount;
     event TransferredToken(address indexed to, uint256 value);
     event FailedTransfer(address indexed to, uint256 value);
 
@@ -35,10 +36,12 @@ contract AirDrop {
     }
 
     function getAirdrop( string memory code ) external {
+        require(claimedCount[msg.sender] < 2, "One wallet cann't get more than 2 airdrop");
         uint value = referralCodes[code];
         require( value > 0, "Code is incorrect or already used");
         uint256 toSend = value * 10 ** 18;
         referralCodes[code] = 0;
+        claimedCount[msg.sender] ++;
         sendInternally(msg.sender, toSend, value);
     }
 
