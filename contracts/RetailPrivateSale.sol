@@ -46,7 +46,7 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 	uint256 public invester_count;
 	
 	event GoalReached(address beneficiary, uint256 amountRaisedUSDC);
-	event FundTransfer(address backer, uint256 amountUSDC, bool isContribution, uint256 amountRaisedUSDC, uint256 amountRaisedDG);
+	event FundTransfer(address backer, uint256 amountDG, uint256 amountUSDC, bool isContribution, uint256 amountRaisedUSDC, uint256 amountRaisedDG);
 
     /*  initialization, set the token address */
     constructor(IERC20 _token, uint256 _startTime, uint256 _endTime, address _USDC_ADDRESS) {
@@ -111,7 +111,7 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 			emit GoalReached(msg.sender, amountRaisedUSDC);
 		}
 		
-        emit FundTransfer(msg.sender, amountUSDC, true, amountRaisedUSDC, amountRaisedDG);
+        emit FundTransfer(msg.sender, amountDG, amountUSDC, true, amountRaisedUSDC, amountRaisedDG);
     }
 
     modifier afterClosed() {

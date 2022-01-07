@@ -87,9 +87,9 @@ contract MiningReservation is Ownable, ReentrancyGuard {
   constructor(IERC20 _dataGen) {
     dataGen = _dataGen;
     countMiningWallet = 1;
-    miningWallet[countMiningWallet-1] = deadAddr;
-    percent[countMiningWallet-1] = 100;
-    newMiningWallet[countMiningWallet-1] = deadAddr;
+    miningWallet[0] = deadAddr;
+    percent[0] = 100;
+    newMiningWallet[0] = deadAddr;
   }
 
   function setMiningWallet(address[] memory _miningWallet, uint[] memory _percent) internal afterVotation {
