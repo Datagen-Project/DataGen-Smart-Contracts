@@ -8,7 +8,6 @@ const {
     BN,
     time,
 } = require("@openzeppelin/test-helpers");
-const balance = require("@openzeppelin/test-helpers/src/balance");
 
 require("chai").should();
 
@@ -217,150 +216,158 @@ contract("VCPrivateSale", accounts => {
             });
         });
     });
-    describe("Claim Datagen and USDC", function() {
-        it("has to claim 10% of DG in the first 90 days", async function() {
-            const investment = new BN("100000000000000000000000");
+    // describe("Claim Datagen and USDC", function() {
+    //     it("has to claim 10% of DG in the first 90 days", async function() {
+    //         const investment = new BN("100000000000000000000000");
             
-            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
-            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[5]});
-            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[6]});
+    //         await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
+    //         await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[5]});
+    //         await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[6]});
             
-            await this.contractOpen.invest(investment, {from: accounts[4]});
-            await this.contractOpen.invest(investment, {from: accounts[5]});
-            await this.contractOpen.invest(investment, {from: accounts[6]});
+    //         await this.contractOpen.invest(investment, {from: accounts[4]});
+    //         await this.contractOpen.invest(investment, {from: accounts[5]});
+    //         await this.contractOpen.invest(investment, {from: accounts[6]});
 
-            const dateEndTime = Math.floor(Date.now() / 1000) - 10;
-            await this.contractOpen.setEndTimeTest(dateEndTime);
+    //         const dateEndTime = Math.floor(Date.now() / 1000) - 10;
+    //         await this.contractOpen.setEndTimeTest(dateEndTime);
         
-            await this.contractOpen.claimDataGen({from: accounts[0]}); 
-            await this.contractOpen.claimDataGen({from: accounts[0]}); 
+    //         await this.contractOpen.claimDataGen({from: accounts[0]}); 
+    //         await this.contractOpen.claimDataGen({from: accounts[0]}); 
 
-            const balanceOfDG4 = await this.DatagenToken.balanceOf(accounts[4]);
-            const balanceOfDG5 = await this.DatagenToken.balanceOf(accounts[5]);
-            const balanceOfDG6 = await this.DatagenToken.balanceOf(accounts[6]);
+    //         const balanceOfDG4 = await this.DatagenToken.balanceOf(accounts[4]);
+    //         const balanceOfDG5 = await this.DatagenToken.balanceOf(accounts[5]);
+    //         const balanceOfDG6 = await this.DatagenToken.balanceOf(accounts[6]);
 
-            const totalDGBalance = balanceOfDG4.add(balanceOfDG5).add(balanceOfDG6);
+    //         const totalDGBalance = balanceOfDG4.add(balanceOfDG5).add(balanceOfDG6);
             
-            totalDGBalance.toString().should.equal("30000000000000000000000");
+    //         totalDGBalance.toString().should.equal("30000000000000000000000");
+    //     });
+    //     it("has to claim 10% in the first 90 days and 10% of the rest invested amount", async function() {
+    //         //In order to test this function you must inizialize the local blockcahin at every test
+            
+    //         const investment = new BN("100000000000000000000000");
+            
+    //         await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
+    //         await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[5]});
+    //         await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[6]});
+            
+    //         await this.contractOpen.invest(investment, {from: accounts[4]});
+    //         await this.contractOpen.invest(investment, {from: accounts[5]});
+    //         await this.contractOpen.invest(investment, {from: accounts[6]});
+
+    //         const dateEndTime = Math.floor(Date.now() / 1000) - 10;
+    //         const dateLockTime = (Math.floor(Date.now() / 1000) -10) + 90 * 24 * 3600;
+
+    //         await this.contractOpen.setEndTimeTest(dateEndTime);
+    //         await this.contractOpen.setLockTimeTest(dateLockTime);
+
+    //         const lock = await this.contractOpen.checkDataGenFunds(accounts[4]);
+    //         console.log(lock.toString());
+
+    //         //1st call
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         //try to claim more 
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         let DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
+    //         console.log(DGFund.toString() + " - 1");
+
+    //         //2nd call
+    //         await time.increase(time.duration.days(91));
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         //try to claim more 
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
+    //         console.log(DGFund.toString() + " - 2");
+
+    //         //3nd call
+    //         await time.increase(time.duration.days(30));
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         //try to claim more 
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
+    //         console.log(DGFund.toString() + " - 3");
+
+    //         //4nd call
+    //         await time.increase(time.duration.days(30));
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         //try to claim more 
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
+    //         console.log(DGFund.toString() + " - 4");
+
+    //         //5nd call
+    //         await time.increase(time.duration.days(30));
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         //try to claim more 
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
+    //         console.log(DGFund.toString() + " - 5");
+
+    //         //6nd call
+    //         await time.increase(time.duration.days(30));
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         //try to claim more 
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
+    //         console.log(DGFund.toString() + " - 6");
+
+    //         //7nd call
+    //         await time.increase(time.duration.days(30));
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         //try to claim more 
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
+    //         console.log(DGFund.toString() + " - 7");
+
+    //         //8nd call
+    //         await time.increase(time.duration.days(30));
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         //try to claim more 
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
+    //         console.log(DGFund.toString() + " - 8");
+
+    //         //9nd call
+    //         await time.increase(time.duration.days(30));
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         //try to claim more 
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
+    //         console.log(DGFund.toString() + " - 9");
+
+    //         //10nd call
+    //         await time.increase(time.duration.days(30));
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         //try to claim more 
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
+    //         console.log(DGFund.toString() + " - 10");
+
+
+    //         //try to claim more
+    //         await time.increase(time.duration.days(30))
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+    //         await this.contractOpen.claimDataGen({from: accounts[0]});
+            
+
+    //         timeNow = await time.latest();
+            
+
+    //         const balanceOf4 = await this.DatagenToken.balanceOf(accounts[4]);
+    //         const balanceOf5 = await this.DatagenToken.balanceOf(accounts[5]);
+    //         const balanceOf6 = await this.DatagenToken.balanceOf(accounts[6]);
+
+
+    //         const totalBalanceOf = balanceOf4.add(balanceOf5).add(balanceOf6);
+    //         totalBalanceOf.toString().should.equal("300000000000000000000000");
+    //     });                          
+    // });
+    describe("Withdraw USDC and DG by the owner", function() {
+        it("has to revert if balance of USDC is 0", async function() {
+            await expectRevert(
+                this.contractClosed.withdrawUSDC({from: accounts[0]}),
+                "Balance is zero."
+            );
         });
-        it("has to claim 10% in the first 90 days and 10% of the rest invested amount", async function() {
-            //In order to test this function you must inizialize the local blockcahin at every test
-            
-            const investment = new BN("100000000000000000000000");
-            
-            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[4]});
-            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[5]});
-            await this.USDCToken.approve(this.contractOpen.address, investment, {from: accounts[6]});
-            
-            await this.contractOpen.invest(investment, {from: accounts[4]});
-            await this.contractOpen.invest(investment, {from: accounts[5]});
-            await this.contractOpen.invest(investment, {from: accounts[6]});
-
-            const dateEndTime = Math.floor(Date.now() / 1000) - 10;
-            const dateLockTime = (Math.floor(Date.now() / 1000) -10) + 90 * 24 * 3600;
-
-            await this.contractOpen.setEndTimeTest(dateEndTime);
-            await this.contractOpen.setLockTimeTest(dateLockTime);
-
-            const lock = await this.contractOpen.checkDataGenFunds(accounts[4]);
-            console.log(lock.toString());
-
-            //1st call
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            //try to claim more 
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            let DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
-            console.log(DGFund.toString() + " - 1");
-
-            //2nd call
-            await time.increase(time.duration.days(91));
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            //try to claim more 
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
-            console.log(DGFund.toString() + " - 2");
-
-            //3nd call
-            await time.increase(time.duration.days(30));
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            //try to claim more 
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
-            console.log(DGFund.toString() + " - 3");
-
-            //4nd call
-            await time.increase(time.duration.days(30));
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            //try to claim more 
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
-            console.log(DGFund.toString() + " - 4");
-
-            //5nd call
-            await time.increase(time.duration.days(30));
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            //try to claim more 
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
-            console.log(DGFund.toString() + " - 5");
-
-            //6nd call
-            await time.increase(time.duration.days(30));
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            //try to claim more 
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
-            console.log(DGFund.toString() + " - 6");
-
-            //7nd call
-            await time.increase(time.duration.days(30));
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            //try to claim more 
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
-            console.log(DGFund.toString() + " - 7");
-
-            //8nd call
-            await time.increase(time.duration.days(30));
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            //try to claim more 
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
-            console.log(DGFund.toString() + " - 8");
-
-            //9nd call
-            await time.increase(time.duration.days(30));
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            //try to claim more 
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
-            console.log(DGFund.toString() + " - 9");
-
-            //10nd call
-            await time.increase(time.duration.days(30));
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            //try to claim more 
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            DGFund = await this.contractOpen.checkDataGenFunds(accounts[4]);
-            console.log(DGFund.toString() + " - 10");
-
-
-            //try to claim more
-            await time.increase(time.duration.days(30))
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            await this.contractOpen.claimDataGen({from: accounts[0]});
-            
-
-            timeNow = await time.latest();
-            
-
-            const balanceOf4 = await this.DatagenToken.balanceOf(accounts[4]);
-            const balanceOf5 = await this.DatagenToken.balanceOf(accounts[5]);
-            const balanceOf6 = await this.DatagenToken.balanceOf(accounts[6]);
-
-
-            const totalBalanceOf = balanceOf4.add(balanceOf5).add(balanceOf6);
-            totalBalanceOf.toString().should.equal("300000000000000000000000");
-        });                          
     });
 });
