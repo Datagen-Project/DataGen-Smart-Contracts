@@ -181,6 +181,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 	function withdrawDataGen() external onlyOwner afterClosed{
 		uint256 balance = tokenReward.balanceOf(address(this));
 		require(balance > 0, "Balance is zero.");
-		tokenReward.transfer(owner(), balance);
+		uint256 balacneMinusToClaim = balance - amountRaisedDG;
+		tokenReward.transfer(owner(), balacneMinusToClaim);
 	}
 }
