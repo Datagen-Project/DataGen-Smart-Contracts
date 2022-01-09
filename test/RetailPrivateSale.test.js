@@ -6,8 +6,7 @@ const {
     expectEvent,  // Assertions for emitted events
     expectRevert, // Assertions for transactions that should fail
     BN,
-} = require("@openzeppelin/test-helpers");
-const { Account } = require("ethereumjs-util");
+} = require('@openzeppelin/test-helpers');
 
 require("chai").should();
 
@@ -19,7 +18,7 @@ require("chai").should();
 
 // function setAmountRaisedDGTest(uint256 _amountRaised) public {
 //     amountRaisedDG = _amountRaised;
-// }
+// }`
 
 // function setEndTimeTest(uint256 _endtime) public {
 //     endTime = _endtime;
