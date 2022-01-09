@@ -87,7 +87,7 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
       uint256 epochs = block.timestamp.sub(lockTime1).div(30 * 24 * 3600).add(2);
       if (epochs > 4) epochs = 4;
 
-      uint256 releaseAmount = mainSalary[msg.sender].div(10);
+      uint256 releaseAmount = mainSalary[msg.sender].div(10).mul(3).div(4);
       uint256 leftSalaryAmount = mainSalary[msg.sender].sub(releaseAmount.mul(epochs));
       
       require(leftSalary[msg.sender] > leftSalaryAmount, "Already released.");
@@ -111,10 +111,10 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
       uint256 epochs = block.timestamp.sub(lockTime2).div(30 * 24 * 3600).add(5);
       if (epochs > 7) epochs = 7;
 
-      uint256 releaseAmount = mainSalary[msg.sender].div(10);
+      uint256 releaseAmount = mainSalary[msg.sender].div(10).mul(3).div(7);
       uint256 leftSalaryAmount = mainSalary[msg.sender].sub(releaseAmount.mul(epochs));
       
-      require(leftSalary[msg.sender] > leftSalaryAmount, "Already released.");
+      require(leftSalary[msg.sender] > leftSalaryAmount, "Already released.");			//BUG
       uint256 transferAmount = leftSalary[msg.sender].sub(leftSalaryAmount);
       
       if(transferAmount > 0) {
