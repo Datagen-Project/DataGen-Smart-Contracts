@@ -24,12 +24,12 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
   
   /* Total token amount in the Team main Pool */
   uint256 public totalAmount = 1700000 * (10**18);
-  /* 1st Lock time 1st of May 2022 GMT Timezone */
-  uint256 public lockTime1 = 1651363200;
-  /* 1st Lock time 1st of May 2023 GMT Timezone */
-  uint256 public lockTime2 = 1682899200;
-  /* 1st Lock time 31st of December 2023 GMT Timezone */
-  uint256 public lockTime3 = 1703980800;
+  /* 1st Lock time 1st of August 2022 GMT Timezone */
+  uint256 public lockTime1 = 1659304800;
+  /* 1st Lock time 1st of August 2023 GMT Timezone */
+  uint256 public lockTime2 = 1690840800;
+  /* 1st Lock time 31st of March 2024 GMT Timezone */
+  uint256 public lockTime3 = 1711839600;
   /* Left token after sending rewards */
   uint256 public leftAmount;
   /* the address of the token contract */
