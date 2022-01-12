@@ -10,8 +10,15 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 contract MiningReservation is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
 
+
+  struct MiningLogicManagerAddressInfo {
+    address[] MiningLogicManagerAddress;
+    uint256[] percent;
+    uint256 voteStartTime;
+  }
+
   /*lock time */
-  uint256 public lockTime = 1711922400; //1st march 2024
+  uint256 public lockTime = 1704067200;
   uint256 public totalLocked = 15000000 * (10**18);
   uint256 public multipler = 1;
   
@@ -36,22 +43,21 @@ contract MiningReservation is Ownable, ReentrancyGuard {
   mapping( address => uint256 ) voteInfo;
   mapping( uint256 => uint256 ) totalVoteInfo;
   mapping( uint256 => uint256 ) totalVotedDG;
+  mapping( address => MiningLogicManagerAddressInfo) miningLogicInfo;
 
   address public voteSetter = 0x000000000000000000000000000000000000dEaD;
    /* Votation address set time*/
-   uint256 public voteAddrSetStartTime = 0;
-   uint256 public voteAddrSetDuration = 3600 * 24 * 57; 
   uint256 public voteOption = 2;
 
   /* the address of the token contract */
 	IERC20 public dataGen;
 
   /* Dead address */
-  address[] miningWallet;
+  address[] MiningLogicManagerAddress;
   uint[] percent;
-  uint countMiningWallet;
+  uint countMiningLogicManagerAddress;
   address deadAddr = 0x000000000000000000000000000000000000dEaD;
-  address[] newMiningWallet;
+  address[] newMiningLogicManagerAddress;
   uint[] new_percent;
 
 
@@ -65,10 +71,8 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     require( block.timestamp <= votationStartTime + votationDuration, "votation ended");
     _;
   }
-  modifier duringVoteSetTime() {
-    require( voteAddrSetStartTime > 0, "voteSet start time is not set");
-    require( block.timestamp >= votationStartTime, "votation is not started");
-    require( block.timestamp <= voteAddrSetStartTime+ voteAddrSetDuration, "votation ended");
+  modifier beforeVotationStart() {
+    require( votationStartTime == 0 && votationDuration == 0, "you can't set voteOption currently");
     _;
   } 
   
@@ -86,30 +90,34 @@ contract MiningReservation is Ownable, ReentrancyGuard {
   /*  initialization, set the token address */
   constructor(IERC20 _dataGen) {
     dataGen = _dataGen;
-    countMiningWallet = 1;
-    miningWallet.push(deadAddr);
+    countMiningLogicManagerAddress = 1;
+    MiningLogicManagerAddress.push(deadAddr);
     percent.push(100);
-    newMiningWallet.push(deadAddr);
+    newMiningLogicManagerAddress.push(deadAddr);
   }
 
   function setMiningWallet(address[] memory _miningWallet, uint[] memory _percent) internal afterVotation {
-    miningWallet = _miningWallet;
+    MiningLogicManagerAddress = _miningWallet;
     percent = _percent;
-    countMiningWallet = _percent.length;
+    countMiningLogicManagerAddress = _percent.length;
 
     votationStartTime = 0;
     votationDuration = 0;
     voteSetter = deadAddr;
     address[1] memory tempWallet;
     tempWallet[0] = deadAddr;
-    newMiningWallet = tempWallet;
+    MiningLogicManagerAddress = tempWallet;
 
-    emit SetMiningWalletAddress(msg.sender, miningWallet);
+    emit SetMiningWalletAddress(msg.sender, MiningLogicManagerAddress);
   }
 
   function stake( uint256 amount ) external nonReentrant{
     require( dataGen.balanceOf(msg.sender) >= amount, "you have not enough #DG to stake");
     require( voteInfo[msg.sender] == 0, "you can't stake after vote");
+
+    if( stakeAmount[msg.sender] + amount >= 100000 * 10 **18 && voteSetter == deadAddr ) {
+      require( miningLogicInfo[msg.sender].voteStartTime != 0, "You must set vote option using voteOptionSet before stake 100000 DG");
+    }
 
     if( stakeAmount[msg.sender] == 0 ) {
       stakers[stakerCount] = msg.sender;
@@ -117,13 +125,12 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     }
     stakeAmount[msg.sender] += amount;
     
-    if( stakeAmount[msg.sender] >= 100000 * 10 **18 && voteAddrSetStartTime > 0 && block.timestamp > voteAddrSetStartTime + voteAddrSetDuration ) {
-      voteSetter = msg.sender;
-      voteAddrSetStartTime = block.timestamp + 3600 * 24 * 3;
-    } 
     if( stakeAmount[msg.sender] >= 100000 * 10 **18 && voteSetter == deadAddr ) {
       voteSetter = msg.sender;
-      voteAddrSetStartTime = block.timestamp + 3600 * 24 * 3;
+      votationStartTime = miningLogicInfo[msg.sender].voteStartTime;
+      votationDuration = 3600 * 24 * 30;
+      newMiningLogicManagerAddress = miningLogicInfo[msg.sender].MiningLogicManagerAddress;
+      new_percent = miningLogicInfo[msg.sender].percent;
     }
     totalStakeAmount += amount;
     dataGen.transferFrom(msg.sender, address(this), amount);
@@ -134,9 +141,9 @@ contract MiningReservation is Ownable, ReentrancyGuard {
 	max 60 days
 	cannot set after set
 */
-  function voteOptionSet( address[] memory _newMiningWallet, uint[] memory _percent ) external onlyVoteSetter duringVoteSetTime {
-    require( newMiningWallet.length == 1 && newMiningWallet[0] == deadAddr, "already set new mining wallet address");
-    
+  function voteOptionSet( address[] memory _newMiningWallet, uint[] memory _percent, uint256 _voteStartTime ) external beforeVotationStart {
+    require( newMiningLogicManagerAddress.length == 1 && newMiningLogicManagerAddress[0] == deadAddr, "already set new mining wallet address");
+    require( _voteStartTime >= block.timestamp + 3 days && _voteStartTime <= block.timestamp + 60 days, "voteStartTime must be bigger than 3 days from now and lesser than 60 days from now");
     uint len_percent = _percent.length;
     uint len_wallet = _newMiningWallet.length;
     require( len_percent == len_wallet, "miningwallet and percent count are not match");
@@ -146,11 +153,10 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     }
     require( total_percent == 100, "total percent must be 100");
 
-    newMiningWallet = _newMiningWallet;
-    new_percent = _percent;
-    voteAddrSetStartTime = 0;
-    votationStartTime = block.timestamp + 3600 * 24 * 15;
-    votationDuration = 3600 * 24 * 30;
+    miningLogicInfo[msg.sender].MiningLogicManagerAddress = _newMiningWallet;
+    miningLogicInfo[msg.sender].percent = _percent;
+    miningLogicInfo[msg.sender].voteStartTime = _voteStartTime;
+
   }
 
 /*
@@ -189,7 +195,8 @@ contract MiningReservation is Ownable, ReentrancyGuard {
       dataGen.transfer(stakerAddr, stakeAmount[stakerAddr]);
       voteInfo[stakerAddr] = 0;
       stakeAmount[stakerAddr] = 0;
-      stakers[i] = deadAddr;  
+      stakers[i] = deadAddr;
+      miningLogicInfo[stakerAddr].voteStartTime = 0;
     }
 
     for( uint i = 1 ; i <= voteOption; i++ ) {
@@ -204,7 +211,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     address[] memory tempAddr;
     tempAddr[0] = deadAddr;
     if( winnerInfo == 1 ) setMiningWallet(tempAddr, tempPercent);
-    else if( winnerInfo == 2 ) setMiningWallet(newMiningWallet, new_percent);
+    else if( winnerInfo == 2 ) setMiningWallet(newMiningLogicManagerAddress, new_percent);
 
     return winnerInfo;
   }
@@ -239,9 +246,9 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     uint256 transferAmount = balance.sub(leftAmount);
     if(transferAmount > 0) {
       require(balance >= transferAmount, "Wrong amount to transfer");
-      for( uint i = 0; i < countMiningWallet; i++ ) {
+      for( uint i = 0; i < countMiningLogicManagerAddress; i++ ) {
         uint amount = transferAmount * percent[i] / 100;
-        dataGen.transfer(miningWallet[i], amount);
+        dataGen.transfer(MiningLogicManagerAddress[i], amount);
       }
     }
 	}
