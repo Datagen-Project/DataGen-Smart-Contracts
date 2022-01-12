@@ -20,8 +20,8 @@ contract TeamBonusPool is Ownable, ReentrancyGuard {
   
   /* Total token amount in the Bonus Pool */
   uint256 public totalAmount = 300000 * (10**18);
-  /* Lock time 1th of June 2022 GMT Timezone */
-  uint256 public lockTime = 1654041600;
+  /* Lock time 1th of August 2022 GMT Timezone */
+  uint256 public lockTime = 1659304800;
   /* Left token after sending bonus */
   uint256 public leftAmount;
   /* the address of the token contract */
