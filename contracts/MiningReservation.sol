@@ -17,7 +17,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     }
 
     /*lock time */
-    uint256 public lockTime = 1704067200;
+    uint256 public lockTime = 1711922400; //1st April 2024
     uint256 public totalLocked = 15000000 * (10**18);
     uint256 public multipler = 1;
 
