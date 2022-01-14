@@ -44,7 +44,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     mapping(uint256 => uint256) totalVotedDG;
     mapping(address => MiningLogicManagerAddressInfo) miningLogicInfo;
 
-    address public voteSetter = 0x000000000000000000000000000000000000dEaD;
+    address public voteSetter = 0xA3F6d3ed766c4D1B29894Ce1537538CC04DA0F58;
     /* Votation address set time*/
     uint256 public voteOption = 2;
 
@@ -55,7 +55,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     address[] MiningLogicManagerAddress;
     uint256[] percent;
     uint256 countMiningLogicManagerAddress;
-    address deadAddr = 0x000000000000000000000000000000000000dEaD;
+    address deadAddr = 0xA3F6d3ed766c4D1B29894Ce1537538CC04DA0F58;
     address[] newMiningLogicManagerAddress;
     uint256[] new_percent;
 
@@ -121,6 +121,31 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         percent.push(100);
         newMiningLogicManagerAddress.push(deadAddr);
     }
+
+    /* Test functions */
+    function getStakerTest(uint256 _index) view external returns(address) {
+        return stakers[_index];
+    }
+
+    function getStakeAmountTest(address _addr) view external returns(uint256) {
+        return stakeAmount[_addr];
+    }
+
+    function getMiningLogicInfoTest(address _addr) view external returns(address[] memory, uint256[] memory, uint256) {
+        MiningLogicManagerAddressInfo memory info = miningLogicInfo[_addr];
+
+        return (info.MiningLogicManagerAddress, info.percent, info.voteStartTime);
+    }
+
+    function getNewMiningLogicManagerAddressTest() view external returns(address[] memory) {
+        return newMiningLogicManagerAddress;
+    }
+
+    function getNewPercentTest() view external returns(uint256[] memory) {
+        return new_percent;
+    }
+    /* End test functions */
+
 
     function setMiningLogicManagerAddress(
         address[] memory _newMiningLogicManagerAddress,
@@ -189,7 +214,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         address[] memory _newMiningLogicManagerAddress,
         uint256[] memory _percent,
         uint256 _voteStartTime
-    ) external beforeVotationStart {
+        ) external beforeVotationStart {
         require(
             _newMiningLogicManagerAddress.length > 1 ||
                 _newMiningLogicManagerAddress[0] != deadAddr,
@@ -211,7 +236,6 @@ contract MiningReservation is Ownable, ReentrancyGuard {
             total_percent += _percent[i];
         }
         require(total_percent == 100, "total percent must be 100");
-
         miningLogicInfo[msg.sender]
             .MiningLogicManagerAddress = _newMiningLogicManagerAddress;
         miningLogicInfo[msg.sender].percent = _percent;
@@ -253,8 +277,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         afterVotation
         nonReentrant
         onlyStaker
-        returns (uint256)
-    {
+        returns (uint256) {
         uint256 winnerDGCount = 0;
         uint256 winnerInfo;
         for (uint256 i = 1; i <= voteOption; i++) {
