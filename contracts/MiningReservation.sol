@@ -122,31 +122,6 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         newMiningLogicManagerAddress.push(deadAddr);
     }
 
-    /* Test functions */
-    function getStakerTest(uint256 _index) view external returns(address) {
-        return stakers[_index];
-    }
-
-    function getStakeAmountTest(address _addr) view external returns(uint256) {
-        return stakeAmount[_addr];
-    }
-
-    function getMiningLogicInfoTest(address _addr) view external returns(address[] memory, uint256[] memory, uint256) {
-        MiningLogicManagerAddressInfo memory info = miningLogicInfo[_addr];
-
-        return (info.MiningLogicManagerAddress, info.percent, info.voteStartTime);
-    }
-
-    function getNewMiningLogicManagerAddressTest() view external returns(address[] memory) {
-        return newMiningLogicManagerAddress;
-    }
-
-    function getNewPercentTest() view external returns(uint256[] memory) {
-        return new_percent;
-    }
-    /* End test functions */
-
-
     function setMiningLogicManagerAddress(
         address[] memory _newMiningLogicManagerAddress,
         uint256[] memory _percent
