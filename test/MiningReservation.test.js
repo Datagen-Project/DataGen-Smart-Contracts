@@ -398,6 +398,24 @@ contract("MiningReservation", accounts => {
 
             checkString.should.equal("4951");
         });
+        it("has to not allow to set a new voteSetter if alrady set", async function() {
+            const address = new Array (accounts[5], accounts[6]);
+            const percent = new Array (49, 51);
+            const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
+
+            const staked = new BN("100000000000000000000000");
+
+            await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[4]});
+            await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[5]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[5]});
+            await this.MiningReservation.stake(staked, {from: accounts[4]});
+            await this.MiningReservation.stake(staked, {from: accounts[5]});
+
+            const voteSetter = await this.MiningReservation.voteSetter()
+
+            voteSetter.toString().should.equal(accounts[4].toString());
+        })
     });
     describe("vote function", function() {
         it("has to revert if votation start time is not set", async function() {
@@ -590,12 +608,73 @@ contract("MiningReservation", accounts => {
             checkString.should.equal("50000000000000000000000150000000000000000000000");
         });
     });
-    describe.only("getWinner function", function() {
+    describe("getWinner function", function() {
         it("has to revert if votation start time is not set", async function() {
             await expectRevert(
                 this.MiningReservation.getWinner(),
                 "votation start time is not set"
             );
         });
-    })
+        it("has to revert if votation isn't finished", async function() {
+            const address = new Array (accounts[5], accounts[6]);
+            const percent = new Array (49,51);
+            const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
+
+            const staked = new BN("100000000000000000000000");
+            await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[4]});
+            await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[4]});
+            await this.MiningReservation.stake(staked, {from: accounts[4]});
+
+            await expectRevert(
+                this.MiningReservation.getWinner({from: accounts[5]}),
+                "votation not ended"
+            );
+        });
+        it("has to revert if caller is not a staker", async function() {
+            const address = new Array (accounts[5], accounts[6]);
+            const percent = new Array (49,51);
+            const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
+
+            const staked = new BN("100000000000000000000000");
+            await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[4]});
+            await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[4]});
+            await this.MiningReservation.stake(staked, {from: accounts[4]});
+
+            time.increase(time.duration.days(35));
+
+            await expectRevert(
+                this.MiningReservation.getWinner({from: accounts[5]}),
+                "you are not staker"
+            );
+        });
+        // it.only("has to choose the correct votation winner", async function() {
+        //     const address = new Array (accounts[5], accounts[6]);
+        //     const percent = new Array (49, 51);
+        //     const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
+
+        //     const staked = new BN("100000000000000000000000");
+        //     const staked2 = new BN("50000000000000000000000")
+
+        //     await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[4]});
+        //     await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[4]});
+        //     await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[5]});
+        //     await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[6]});
+        //     await this.MiningReservation.stake(staked2, {from: accounts[5]});
+        //     await this.MiningReservation.stake(staked2, {from: accounts[6]});
+        //     await this.MiningReservation.stake(staked, {from: accounts[4]});
+
+        //     time.increase(time.duration.days(5));
+
+        //     await this.MiningReservation.vote(2, {from: accounts[4]});
+        //     await this.MiningReservation.vote(2, {from: accounts[5]});
+        //     await this.MiningReservation.vote(1, {from: accounts[6]});
+
+        //     time.increase(time.duration.days(31));
+
+        //     const winnerInfo = await this.MiningReservation.getWinnerTest({from: accounts[6]});
+        //     console.log(winnerInfo);
+
+        //     winnerInfo.toString().should.equal("2");
+        // });
+    });
 });
