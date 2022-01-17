@@ -63,6 +63,11 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         address indexed user,
         address[] indexed MiningLogicManagerAddress
     );
+    event getWinnerInfo(
+        uint winnerInfo,
+        address[] indexed MiningLogicManagerAddress,
+        uint[] indexed percents
+    );
 
     modifier duringVotation() {
         require(votationStartTime > 0, "votation start time is not set");
@@ -133,9 +138,6 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         votationStartTime = 0;
         votationDuration = 0;
         voteSetter = deadAddr;
-        address[1] memory tempWallet;
-        tempWallet[0] = deadAddr;
-        MiningLogicManagerAddress = tempWallet;
 
         emit SetMiningLogicManagerAddress(
             msg.sender,
@@ -278,17 +280,30 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         stakerCount = 0;
 
         uint256[] memory tempPercent;
+        tempPercent = new uint256[](1);
         tempPercent[0] = 100;
         address[] memory tempAddr;
+        tempAddr = new address[](1);
         tempAddr[0] = deadAddr;
-        if (winnerInfo == 1)
+        if (winnerInfo == 1) {
             setMiningLogicManagerAddress(tempAddr, tempPercent);
-        else if (winnerInfo == 2)
+            emit getWinnerInfo(
+                winnerInfo,
+                tempAddr,
+                tempPercent
+            );
+        }
+        else if (winnerInfo == 2) {
             setMiningLogicManagerAddress(
                 newMiningLogicManagerAddress,
                 new_percent
             );
-
+            emit getWinnerInfo(
+                winnerInfo,
+                newMiningLogicManagerAddress,
+                new_percent
+            );
+        }
         return winnerInfo;
     }
 
