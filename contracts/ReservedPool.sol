@@ -29,14 +29,16 @@ contract ReservedPool is Ownable, ReentrancyGuard {
   /* the address of the token contract */
   IERC20 public dataGen;
   /* the address of the company wallet */
-  address public companyWallet;
+  address[] public companyWallet;
+  uint256 public companyWalletLength;
 
-  event SetCompanyWalletAddress(address indexed user, address indexed companyWallet); 
+  event SetCompanyWalletAddress(address indexed user, address[] indexed companyWallet); 
 
   /*  initialization, set the token address */
   constructor(IERC20 _dataGen, address _companyWallet) {
     dataGen = _dataGen;
-    companyWallet = _companyWallet;
+    companyWallet.push(_companyWallet);
+    companyWalletLength = 1;
   }
 
   modifier firstRelease() {
@@ -59,14 +61,23 @@ contract ReservedPool is Ownable, ReentrancyGuard {
       uint256 transferAmount = balance.sub(srAmount).sub(leftAmount);
       if(transferAmount > 0) {
         require(balance.sub(srAmount) >= transferAmount, "Wrong amount to transfer");
-        dataGen.transfer(companyWallet, transferAmount);
+        uint256 realAmount = transferAmount / companyWalletLength;
+        for( uint i = 0; i < companyWalletLength - 1; i++ ) {
+          dataGen.transfer(companyWallet[i], realAmount);
+        }
+        dataGen.transfer(companyWallet[companyWalletLength - 1], transferAmount - realAmount * (companyWalletLength-1));
       }
     }
     else {
       uint256 balance = dataGen.balanceOf(address(this));
       
       if( balance > srAmount) {
-        dataGen.transfer(companyWallet, (balance.sub(srAmount)));
+        uint256 realtransferAmount = balance.sub(srAmount);
+        uint256 realAmount = realtransferAmount / companyWalletLength;
+        for( uint i = 0; i < companyWalletLength - 1; i++ ) {
+          dataGen.transfer(companyWallet[i], realAmount);
+        }
+        dataGen.transfer(companyWallet[companyWalletLength - 1], realtransferAmount - realAmount * (companyWalletLength-1));
       }
 
       uint256 epochs = (block.timestamp.sub(srStart)).div(30 * 24 * 3600).add(1);
@@ -78,14 +89,20 @@ contract ReservedPool is Ownable, ReentrancyGuard {
       require(balance > leftAmount, "Already released.");
       uint256 transferAmount = balance.sub(leftAmount);
       if(transferAmount > 0) {
-        dataGen.transfer(companyWallet, transferAmount);
+        uint256 realtransferAmount = transferAmount;
+        uint256 realAmount = realtransferAmount / companyWalletLength;
+        for( uint i = 0; i < companyWalletLength - 1; i++ ) {
+          dataGen.transfer(companyWallet[i], realAmount);
+        }
+        dataGen.transfer(companyWallet[companyWalletLength - 1], realtransferAmount - realAmount * (companyWalletLength-1));
       }
     }
 	}
 
   /* companyWallet update, only owner can do. */
-  function setCompanyWallet(address _companyWallet) public onlyOwner {
+  function setCompanyWallet(address[] memory _companyWallet) public onlyOwner {
     companyWallet = _companyWallet;
+    companyWalletLength = _companyWallet.length;
     emit SetCompanyWalletAddress(msg.sender, _companyWallet);
   }
 

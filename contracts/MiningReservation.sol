@@ -191,8 +191,8 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         uint256 _voteStartTime
     ) external beforeVotationStart {
         require(
-            newMiningLogicManagerAddress.length == 1 &&
-                newMiningLogicManagerAddress[0] == deadAddr,
+            _newMiningLogicManagerAddress.length > 1 ||
+                _newMiningLogicManagerAddress[0] != deadAddr,
             "already set new mining wallet address"
         );
         require(
