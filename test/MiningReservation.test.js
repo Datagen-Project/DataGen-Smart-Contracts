@@ -67,6 +67,7 @@ contract("MiningReservation", accounts => {
         this.USDCToken = await USDC.new();
 
         this.MiningReservation = await MiningReservation.new(this.DatagenToken.address);
+        this.MiningReservationNoDG = await MiningReservation.new(this.DatagenToken.address);
 
         const fundDG = new BN("15000000000000000000000000");
             await this.DatagenToken.transfer(this.MiningReservation.address, fundDG, {from: accounts[0]});
@@ -660,7 +661,7 @@ contract("MiningReservation", accounts => {
                 "you are not staker"
             );
         });
-        it.only("has to set the correct winner", async function() {
+        it("has to set the correct winner", async function() {
             const address = new Array (accounts[5], accounts[6]);
             const percent = new Array (49, 51);
             const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
@@ -817,5 +818,19 @@ contract("MiningReservation", accounts => {
 
             await this.MiningReservation.getWinner({from: accounts[4]});   
         }); 
-    });  
+    });
+    describe("releseDataGen function", function() {
+        it("has to revert if contract has zero DG", async function() {
+            await expectRevert(
+                this.MiningReservationNoDG.releaseDataGen(),
+                "Zero #DG left."
+            );
+        });
+        it.only("has to revert if still lock by time", async function() {
+            await expectRevert(
+                this.MiningReservation.releaseDataGen(),
+                "Still locked."
+            );
+        });
+    });
 }); 
