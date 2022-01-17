@@ -17,7 +17,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     }
 
     /*lock time */
-    uint256 public lockTime = 1704067200;
+    uint256 public lockTime = 1711922400; //1st April 2024
     uint256 public totalLocked = 15000000 * (10**18);
     uint256 public multipler = 1;
 
@@ -189,7 +189,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         address[] memory _newMiningLogicManagerAddress,
         uint256[] memory _percent,
         uint256 _voteStartTime
-    ) external beforeVotationStart {
+        ) external beforeVotationStart {
         require(
             _newMiningLogicManagerAddress.length > 1 ||
                 _newMiningLogicManagerAddress[0] != deadAddr,
@@ -211,7 +211,6 @@ contract MiningReservation is Ownable, ReentrancyGuard {
             total_percent += _percent[i];
         }
         require(total_percent == 100, "total percent must be 100");
-
         miningLogicInfo[msg.sender]
             .MiningLogicManagerAddress = _newMiningLogicManagerAddress;
         miningLogicInfo[msg.sender].percent = _percent;
@@ -253,8 +252,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         afterVotation
         nonReentrant
         onlyStaker
-        returns (uint256)
-    {
+        returns (uint256) {
         uint256 winnerDGCount = 0;
         uint256 winnerInfo;
         for (uint256 i = 1; i <= voteOption; i++) {
