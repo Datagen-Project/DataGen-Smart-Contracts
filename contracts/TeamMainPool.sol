@@ -2,11 +2,11 @@
 
 /**
  * B-Datagray Team main remuration Pool
- * Tokens inside this smart contract: 1,700,000.00 #DG
- * 10% of #DG(170,000.00 #DG) will be unlocked and available from the beginning.
- * 30% of #DG(510,000.00 #DG) will be locked in smart contract until 1st of August 2022 (and
+ * Tokens inside this smart contract: 1,000,000.00 #DG
+ * 10% of #DG(100,000.00 #DG) will be unlocked and available from the beginning.
+ * 30% of #DG(300,000.00 #DG) will be locked in smart contract until 1st of August 2022 (and
  * gradually released in three release events, one each 30 days from the August 1st 2022).
- * 30% of #DG(510,000.00 #DG) will be locked until 1st August 2023 (and gradually released in three 
+ * 30% of #DG(300,000.00 #DG) will be locked until 1st August 2023 (and gradually released in three 
  * release events, one each 30 days from the August 1st 2023).
  * remaining 30% will be locked until 31st March 2024 and released gradually in four years 
  * from then, so in 48 release events (one each 30 days).
