@@ -8,6 +8,7 @@ const {
     BN,
     time,
 } = require("@openzeppelin/test-helpers");
+const balance = require("@openzeppelin/test-helpers/src/balance");
 
 require("chai").should();
 
@@ -46,6 +47,18 @@ to set accounts[9] as deadAddr and as voteSetter in the contract
         return totalVotedDG[_position];
     }
 
+    function getDeadAddrTest() view external returns(address) {
+        return deadAddr;
+    }
+    
+    function getMiningLogicManagerAddressTest() view external returns(address[] memory) {
+        return MiningLogicManagerAddress;
+    }
+
+    function getPercentTest() view external returns(uint256[] memory) {
+        return percent;
+    }
+
 End test functions */
 
 contract("MiningReservation", accounts => {
@@ -54,6 +67,7 @@ contract("MiningReservation", accounts => {
         this.USDCToken = await USDC.new();
 
         this.MiningReservation = await MiningReservation.new(this.DatagenToken.address);
+        this.MiningReservationNoDG = await MiningReservation.new(this.DatagenToken.address);
 
         const fundDG = new BN("15000000000000000000000000");
             await this.DatagenToken.transfer(this.MiningReservation.address, fundDG, {from: accounts[0]});
@@ -647,34 +661,176 @@ contract("MiningReservation", accounts => {
                 "you are not staker"
             );
         });
-        // it.only("has to choose the correct votation winner", async function() {
-        //     const address = new Array (accounts[5], accounts[6]);
-        //     const percent = new Array (49, 51);
-        //     const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
+        it("has to set the correct winner", async function() {
+            const address = new Array (accounts[5], accounts[6]);
+            const percent = new Array (49, 51);
+            const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
 
-        //     const staked = new BN("100000000000000000000000");
-        //     const staked2 = new BN("50000000000000000000000")
+            const staked = new BN("100000000000000000000000");
+            const staked2 = new BN("50000000000000000000000")
 
-        //     await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[4]});
-        //     await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[4]});
-        //     await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[5]});
-        //     await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[6]});
-        //     await this.MiningReservation.stake(staked2, {from: accounts[5]});
-        //     await this.MiningReservation.stake(staked2, {from: accounts[6]});
-        //     await this.MiningReservation.stake(staked, {from: accounts[4]});
+            await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[5]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked2, {from: accounts[5]});
+            await this.MiningReservation.stake(staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked, {from: accounts[4]});
 
-        //     time.increase(time.duration.days(5));
+            time.increase(time.duration.days(5));
 
-        //     await this.MiningReservation.vote(2, {from: accounts[4]});
-        //     await this.MiningReservation.vote(2, {from: accounts[5]});
-        //     await this.MiningReservation.vote(1, {from: accounts[6]});
+            await this.MiningReservation.vote(2, {from: accounts[4]});
+            await this.MiningReservation.vote(2, {from: accounts[5]});
+            await this.MiningReservation.vote(1, {from: accounts[6]});
 
-        //     time.increase(time.duration.days(31));
+            time.increase(time.duration.days(31));
 
-        //     const winnerInfo = await this.MiningReservation.getWinnerTest({from: accounts[6]});
-        //     console.log(winnerInfo);
+            const winnerInfo = await this.MiningReservation.getWinner.call({from: accounts[6]});
 
-        //     winnerInfo.toString().should.equal("2");
-        // });
+            winnerInfo.toString().should.equal("2");
+        });
+        it("has to redistribute the DG stked to stakers", async function() {
+            const address = new Array (accounts[5], accounts[6]);
+            const percent = new Array (49, 51);
+            const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
+
+            const staked = new BN("100000000000000000000000");
+            const staked2 = new BN("50000000000000000000000")
+
+            await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[5]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked2, {from: accounts[5]});
+            await this.MiningReservation.stake(staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked, {from: accounts[4]});
+
+            time.increase(time.duration.days(5));
+            
+            await this.MiningReservation.vote(2, {from: accounts[4]});
+            await this.MiningReservation.vote(2, {from: accounts[5]});
+            await this.MiningReservation.vote(1, {from: accounts[6]});
+
+            time.increase(time.duration.days(31));
+
+            await this.MiningReservation.getWinner({from: accounts[4]});
+
+            const balanceAccount4 = await this.DatagenToken.balanceOf(accounts[4]);
+            const balanceAccount5 = await this.DatagenToken.balanceOf(accounts[5]);
+            const balanceAccount6 = await this.DatagenToken.balanceOf(accounts[6]);
+
+            const checkString = balanceAccount4.toString() + balanceAccount5.toString() + balanceAccount6.toString();
+            checkString.should.equal("200000000000000000000000200000000000000000000000200000000000000000000000");
+        });
+        it("has the correct MiningLogicManagerAddress after the voting", async function() {
+            const address = new Array (accounts[5], accounts[6]);
+            const percent = new Array (49, 51);
+            const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
+
+            const staked = new BN("100000000000000000000000");
+            const staked2 = new BN("50000000000000000000000")
+
+            await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[5]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked2, {from: accounts[5]});
+            await this.MiningReservation.stake(staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked, {from: accounts[4]});
+
+            time.increase(time.duration.days(5));
+            
+            await this.MiningReservation.vote(2, {from: accounts[4]});
+            await this.MiningReservation.vote(2, {from: accounts[5]});
+            await this.MiningReservation.vote(1, {from: accounts[6]});
+
+            time.increase(time.duration.days(31));
+
+            await this.MiningReservation.getWinner({from: accounts[4]});
+
+            const MiningLogicManagerAddress = await this.MiningReservation.getMiningLogicManagerAddressTest();
+            
+            const Address1 = MiningLogicManagerAddress[0].toString();
+            const Address2 = MiningLogicManagerAddress[1].toString();
+
+            const checkString = Address1 + Address2;
+
+            checkString.should.equal(accounts[5].toString() + accounts[6].toString());
+        });
+        it("has the correct percent after the voting", async function() {
+            const address = new Array (accounts[5], accounts[6]);
+            const percent = new Array (49, 51);
+            const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
+
+            const staked = new BN("100000000000000000000000");
+            const staked2 = new BN("50000000000000000000000")
+
+            await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[5]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked2, {from: accounts[5]});
+            await this.MiningReservation.stake(staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked, {from: accounts[4]});
+
+            time.increase(time.duration.days(5));
+            
+            await this.MiningReservation.vote(2, {from: accounts[4]});
+            await this.MiningReservation.vote(2, {from: accounts[5]});
+            await this.MiningReservation.vote(1, {from: accounts[6]});
+
+            time.increase(time.duration.days(31));
+
+            await this.MiningReservation.getWinner({from: accounts[4]});
+
+            const newPercent = await this.MiningReservation.getPercentTest();
+
+            const Percent1 = newPercent[0].toString();
+            const Percent2 = newPercent[1].toString();
+
+            const checkString = Percent1 + Percent2;
+
+            checkString.should.equal("4951");
+        });
+        it("has deadAddress set after voting", async function() {
+            const address = new Array (accounts[5], accounts[6]);
+            const percent = new Array (49, 51);
+            const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
+
+            const staked = new BN("100000000000000000000000");
+            const staked2 = new BN("50000000000000000000000")
+
+            await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[5]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked2, {from: accounts[5]});
+            await this.MiningReservation.stake(staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked, {from: accounts[4]});
+
+            time.increase(time.duration.days(5));
+            
+            await this.MiningReservation.vote(2, {from: accounts[4]});
+            await this.MiningReservation.vote(2, {from: accounts[5]});
+            await this.MiningReservation.vote(1, {from: accounts[6]});
+
+            time.increase(time.duration.days(31));
+
+            await this.MiningReservation.getWinner({from: accounts[4]});   
+        }); 
     });
-});
+    describe("releseDataGen function", function() {
+        it("has to revert if contract has zero DG", async function() {
+            await expectRevert(
+                this.MiningReservationNoDG.releaseDataGen(),
+                "Zero #DG left."
+            );
+        });
+        it.only("has to revert if still lock by time", async function() {
+            await expectRevert(
+                this.MiningReservation.releaseDataGen(),
+                "Still locked."
+            );
+        });
+    });
+}); 

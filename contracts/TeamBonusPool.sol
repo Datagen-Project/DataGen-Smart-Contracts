@@ -3,7 +3,7 @@
 /**
  * B-Datagray Team bonus remuration Pool
  * Tokens inside this smart contract: 300,000.00 #DG
- * Tokens will be locked until 1th of June 2022.
+ * Tokens will be locked until 1th of August 2022.
  * Then is released in 10 equal release events (in each of them 10% of the liquidity is made available
  * for withdrawal), one every 30 days.
  */
