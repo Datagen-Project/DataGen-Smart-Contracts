@@ -311,7 +311,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         require(dataGen.balanceOf(address(this)) > 0, "Zero #DG left.");
         require(block.timestamp >= lockTime, "Still locked.");
 
-        uint256 balance = dataGen.balanceOf(address(this));
+        uint256 balance = dataGen.balanceOf(address(this)).sub(totalStakeAmount);
 
         uint256 plusDate = multipler.mul(1095).sub(1095);
         uint256 epochs = block
