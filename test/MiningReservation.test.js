@@ -59,7 +59,16 @@ to set accounts[9] as deadAddr and as voteSetter in the contract
         return percent;
     }
 
-End test functions */
+End test functions 
+
+    @dev to test releaseDataGen you must change this variables into the function and make them public.
+
+        uint256 public counter;
+        uint256 public epochs;
+        uint256 public balance;
+        uint256 public leftAmount;
+
+*/
 
 contract("MiningReservation", accounts => {
     beforeEach(async function() {
@@ -198,16 +207,16 @@ contract("MiningReservation", accounts => {
 
         });
         it("has the correct percent in miningLogicInfo when interact with voteOptionSet", async function() {
-            const address = new Array (accounts[5], accounts[6]);
-            const percent = new Array (49, 51);
+            const address = new Array (accounts[5], accounts[9], accounts[7]);
+            const percent = new Array (50, 30, 20);
             const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
 
             await this.MiningReservation.voteOptionSet(address,percent, start, {from: accounts[4]});
             const miningLogicInfo = await this.MiningReservation.getMiningLogicInfoTest(accounts[4]);
 
-            const checkString = miningLogicInfo[1][0].toString() + miningLogicInfo[1][1].toString();
+            const checkString = miningLogicInfo[1][0].toString() + miningLogicInfo[1][1].toString() + miningLogicInfo[1][2];
             
-            checkString.should.equal("4951");
+            checkString.should.equal("503020");
         });
         it("has the correct voteStartTime in miningLogicInfo when interact with voteOptionSet", async function () {
             const address = new Array (accounts[5], accounts[6]);
@@ -217,7 +226,7 @@ contract("MiningReservation", accounts => {
 
             await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[4]});
             const miningLogicInfo = await this.MiningReservation.getMiningLogicInfoTest(accounts[4]);
-            const voteStartTime = miningLogicInfo[2].toString()
+            const voteStartTime = miningLogicInfo[2].toString() 
 
             voteStartTime.should.equal(start.toString())
         });
@@ -817,20 +826,149 @@ contract("MiningReservation", accounts => {
             time.increase(time.duration.days(31));
 
             await this.MiningReservation.getWinner({from: accounts[4]});   
-        }); 
+        });
+        it("has to be able to vote a second time after getWinner", async function() {
+            const address = new Array (accounts[5]);
+            const percent = [100];
+            const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
+
+            const address2 = new Array (accounts[6]);
+            const percent2 = [100];
+            const start2 = Math.floor(Date.now() / 1000) + 40 * 24 * 3600;
+
+            const staked = new BN("100000000000000000000000");
+            const staked2 = new BN("50000000000000000000000");
+
+            await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[5]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked2, {from: accounts[5]});
+            await this.MiningReservation.stake(staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked, {from: accounts[4]});
+
+            time.increase(time.duration.days(5));
+            
+            await this.MiningReservation.vote(2, {from: accounts[4]});
+            await this.MiningReservation.vote(2, {from: accounts[5]});
+            await this.MiningReservation.vote(1, {from: accounts[6]});
+
+            time.increase(time.duration.days(31));
+
+            await this.MiningReservation.getWinner({from: accounts[4]});
+
+            const MiningLogicManagerAddress = await this.MiningReservation.getMiningLogicManagerAddressTest();
+            
+            const Address1 = MiningLogicManagerAddress[0].toString();
+
+            await this.MiningReservation.voteOptionSet(address2, percent2, start2, {from: accounts[5]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[5]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked, {from: accounts[5]});
+            await this.MiningReservation.stake(staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked2, {from: accounts[4]});
+
+            time.increase(time.duration.days(5));
+            
+            await this.MiningReservation.vote(2, {from: accounts[4]});
+            await this.MiningReservation.vote(2, {from: accounts[5]});
+            await this.MiningReservation.vote(1, {from: accounts[6]});
+
+            time.increase(time.duration.days(31));
+
+            await this.MiningReservation.getWinner({from: accounts[4]});
+            
+            const MiningLogicManagerAddress1 = await this.MiningReservation.getMiningLogicManagerAddressTest();
+            
+            const Address2 = MiningLogicManagerAddress1[0].toString();
+
+            const checkString = Address1 + Address2;
+
+            checkString.should.equal(accounts[5].toString() + accounts[6].toString());
+        });
     });
     describe("releseDataGen function", function() {
+        this.timeout(0);
         it("has to revert if contract has zero DG", async function() {
             await expectRevert(
                 this.MiningReservationNoDG.releaseDataGen(),
                 "Zero #DG left."
             );
         });
-        it.only("has to revert if still lock by time", async function() {
+        it("has to revert if still lock by time", async function() {
             await expectRevert(
                 this.MiningReservation.releaseDataGen(),
                 "Still locked."
             );
+        });
+        it("has to release to dead address after 1st april 2024", async function() {
+            await time.increaseTo(1711922400);
+            await this.MiningReservation.releaseDataGen();
+            const balanceOfDeadAddress = await this.DatagenToken.balanceOf(accounts[9]);
+
+            balanceOfDeadAddress.toString().should.equal("4560000000000000000000");
+        });
+        it("has to release to dead address after 1st april 2024 all release", async function() {
+            await time.increaseTo(1711922400);
+            
+            for(i = 0; i < 7665; i++) {
+                const epochs = await this.MiningReservation.epochs();
+                const balance = await this.MiningReservation.balance();
+                const leftAmount = await this.MiningReservation.leftAmount();
+                const multipler = await this.MiningReservation.multipler();
+                const diff = balance.sub(leftAmount);
+                console.log("epoch: %s, balance: %s, leftAmount: %s, diff: %s, multipler: %s", epochs, balance, leftAmount, diff, multipler);
+                await this.MiningReservation.releaseDataGen();
+                await time.increase(time.duration.days(1));
+            }
+
+            const balanceOfDeadAddress = await this.DatagenToken.balanceOf(accounts[9]);
+            
+            balanceOfDeadAddress.toString().should.equal("9908381250000000000000000");
+        });
+        it("has to release to dead address after 1st april 2024 one release every H time ", async function() {
+            await time.increaseTo(1711922400);
+        
+            await time.increase(time.duration.days(1094));
+            for(i = 0; i < 7; i++) {
+                const epochs = await this.MiningReservation.epochs();
+                const balance = await this.MiningReservation.balance();
+                const leftAmount = await this.MiningReservation.leftAmount();
+                const multipler = await this.MiningReservation.multipler();
+                const diff = balance.sub(leftAmount);
+                console.log("epoch: %s, balance: %s, leftAmount: %s, diff: %s, multipler: %s", epochs, balance, leftAmount, diff, multipler);
+                await this.MiningReservation.releaseDataGen();
+                await time.increase(time.duration.days(1095));
+            }
+
+            const balanceOfDeadAddress = await this.DatagenToken.balanceOf(accounts[9]);
+            
+            balanceOfDeadAddress.toString().should.equal("9908381250000000000000000");
+        });
+        it("has to release to dead address after 1st april 2024 all h1 and h2 in one release", async function() {     
+            await time.increaseTo(1711922400);
+            await time.increase(time.duration.days(2189));
+
+            let epochs = await this.MiningReservation.epochs();
+            let balance = await this.MiningReservation.balance();
+            let leftAmount = await this.MiningReservation.leftAmount();
+            let multipler = await this.MiningReservation.multipler();
+            let diff = balance.sub(leftAmount);
+            console.log("epoch: %s, balance: %s, leftAmount: %s, diff: %s, multipler: %s", epochs, balance, leftAmount, diff, multipler);
+            
+            await this.MiningReservation.releaseDataGen();
+            
+            epochs = await this.MiningReservation.epochs();
+            balance = await this.MiningReservation.balance();
+            leftAmount = await this.MiningReservation.leftAmount();
+            multipler = await this.MiningReservation.multipler();
+            diff = balance.sub(leftAmount);
+            console.log("epoch: %s, balance: %s, leftAmount: %s, diff: %s, multipler: %s", epochs, balance, leftAmount, diff, multipler);
+            
+            const balanceOfDeadAddress = await this.DatagenToken.balanceOf(accounts[9]);
+
+            balanceOfDeadAddress.toString().should.equal("7489800000000000000000000");
         });
     });
 }); 
