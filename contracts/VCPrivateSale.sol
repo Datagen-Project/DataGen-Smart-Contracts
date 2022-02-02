@@ -28,6 +28,9 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 	uint256 public constant secondPrice = 9 * 10**5;
 	uint256 public constant thirdPrice = 11 * 10**5;
 
+	/* a controll for the claimDataGen function */ 
+	bool firstTime = true;
+
 	address private USDC_ADDRESS;
 
 	/* the address of the token contract */
@@ -152,23 +155,27 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 			uint256 epochs = 0;
 			uint256 amount = 0;
 			uint256 maxAmount = 0;
-			if (block.timestamp < lockTime) {
+
+			uint256 balance = tokenReward.balanceOf(address(this));
+			if( balance < amount ) continue;
+
+			if (block.timestamp < lockTime || firstTime == true) {
 				maxAmount = totalBalanceOfDG[invester].div(10);
 				amount = maxAmount.sub(totalBalanceOfDG[invester].sub(balanceOfDG[invester]));
-			} else {
+				balanceOfDG[invester] = balanceOfDG[invester].sub(amount);
+				tokenReward.transfer(invester, amount);
+				firstTime = false;
+			} 
+			if (block.timestamp >= lockTime) {
 				epochs = block.timestamp.sub(lockTime).div(30 * 24 * 3600).add(1);
 				if (epochs > 10) epochs = 10;
 				
 				maxAmount = (totalBalanceOfDG[invester] - totalBalanceOfDG[invester].div(10)).mul(epochs).div(10);
 				amount = maxAmount.sub((totalBalanceOfDG[invester] - totalBalanceOfDG[invester].div(10)).sub(balanceOfDG[invester]));
-			}
-			
-		
-			uint256 balance = tokenReward.balanceOf(address(this));
-			if( balance < amount ) continue;
 
-			balanceOfDG[invester] = balanceOfDG[invester].sub(amount);
-			tokenReward.transfer(invester, amount);
+				balanceOfDG[invester] = balanceOfDG[invester].sub(amount);
+				tokenReward.transfer(invester, amount);
+			}
 		}
 	}
 
