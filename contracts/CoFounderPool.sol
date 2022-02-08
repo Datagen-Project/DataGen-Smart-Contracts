@@ -21,9 +21,9 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
   
   /* Token amount for co-founders */
-  uint256 public cfAmount = 3000000 * (10**18);
+  uint256 public constant cfAmount = 3000000 * (10**18);
   /* Release amount for co-founders */
-  uint256 public rcfAmount = 2700000 * (10**18);
+  uint256 public constant rcfAmount = 2700000 * (10**18);
   /* Release start time after deployed the token (1,095 days later)*/
   uint256 public releaseStart;
   /* Available at first(both of Angela & Luca) */

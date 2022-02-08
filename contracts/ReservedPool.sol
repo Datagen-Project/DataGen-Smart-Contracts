@@ -19,13 +19,13 @@ contract ReservedPool is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
   
   /* First release tokens */
-  uint256 public frAmount = 750000 * (10**18);
+  uint256 public constant frAmount = 750000 * (10**18);
   /* First release start time(21/12/2023 00:00:00) */
-  uint256 public frStart = 1703116800;
+  uint256 public constant frStart = 1703116800;
   /* Second release tokens */
-  uint256 public srAmount = 750000 * (10**18);
+  uint256 public constant srAmount = 750000 * (10**18);
   /* Second release start time */
-  uint256 public srStart = 1734220800;
+  uint256 public constant srStart = 1734220800;
   /* the address of the token contract */
   IERC20 public dataGen;
   /* the address of the company wallet */
