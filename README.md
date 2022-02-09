@@ -33,7 +33,7 @@ DataGen is a new cryptocurrency used to settle all the payments in the ecosystem
 
 ## Getting started
 
-You could clone the repository and try the smart contracts in your local machiney, you need also to install [truffle](https://trufflesuite.com/truffle/) to interact with the code.
+You could clone the repository and try the smart contracts in your local machine, you need also to install [truffle](https://trufflesuite.com/truffle/) to interact with the code.
 
 From your comand line:
 ```bash
@@ -66,8 +66,8 @@ $ truffle test test/Datagen.test.js
 ```
 ***Note***: 
 
-- Many contracts have a comment section to read to test it in the correct way.
-- If there is a time manipulation of the blockchian in the test you need to restart the blockchain to get it pass, for this reason some tests need to be done one by one.
+- Many contracts have a comment section you must read to test it in the correct way.
+- If there is a time manipulation of the blockchian in the test you need to restart the blockchain to get it pass every time you run a test, for this reason some tests need to be done one by one.
 
 ## Licensing
 
