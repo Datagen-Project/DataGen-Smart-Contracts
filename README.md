@@ -52,5 +52,23 @@ $ npm install truffle -g
 
 Download [ganache](https://trufflesuite.com/ganache/) to run a local blockchain on your machine, there is also a [cli verison of ganache](https://github.com/trufflesuite/ganache-cli-archive).
 
+## Testing 
 
+Run ganache and and start a local blockchain clicking on "Quickstart".
 
+Now you could test the contracts, we suggest to test the contracts one by one.
+
+From your comand line:
+
+```bash
+# e.g. if you want to test DataGen contract
+$ truffle test test/Datagen.test.js
+```
+***Note***: 
+
+- Many contracts have a comment section to read to test it in the correct way.
+- If there is a time manipulation of the blockchian in the test you need to restart the blockchain to get it pass, for this reason some tests need to be done one by one.
+
+## Licensing
+
+The code in this project is licensed under [GNU general Public License v3.0](https://github.com/Datagen-Project/DataGen-Smart-Contracts/blob/main/LICENSE.md).
