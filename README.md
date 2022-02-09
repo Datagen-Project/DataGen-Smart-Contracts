@@ -25,3 +25,32 @@
     <img src="https://img.shields.io/github/license/Datagen-Project/DataGen-Smart-Contracts">
   </a>
 </p>
+
+
+##  Overview
+
+DataGen is a new cryptocurrency used to settle all the payments in the ecosystem. Initially it will be an ERC-20 token deployed on Polygon mainnet and later bridged to our native blockchain for in chain payments
+
+## Getting started
+
+You could clone the repository and try the smart contracts in your local machiney, you need also to install [truffle](https://trufflesuite.com/truffle/) to interact with the code.
+
+From your comand line:
+```bash
+# Clone this repository 
+$ git clone gh repo clone https://github.com/Datagen-Project/DataGen-Smart-Contracts
+
+# Go into the repository
+$ cd DataGen-Smart-Contracts
+
+# Install dependencies
+$ npm install
+
+# Install truffle 
+$ npm install truffle -g
+```
+
+Download [ganache](https://trufflesuite.com/ganache/) to run a local blockchain on your machine, there is also a [cli verison of ganache](https://github.com/trufflesuite/ganache-cli-archive).
+
+
+
