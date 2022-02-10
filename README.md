@@ -66,7 +66,7 @@ $ truffle test test/Datagen.test.js
 ```
 ***Note***: 
 
-- Many contracts have a comment section you must read to test it in the correct way.
+- Many contracts have a comment section you must read to test them in the correct way.
 - If there is a time manipulation of the blockchian in the test you need to restart the blockchain to get it pass every time you run a test, for this reason some tests need to be done one by one.
 
 ## Licensing
