@@ -29,7 +29,7 @@
 
 ##  Overview
 
-DataGen is a new cryptocurrency used to settle all the payments in the ecosystem. Initially it will be an ERC-20 token deployed on Polygon mainnet and later bridged to our native blockchain for in chain payments
+DataGen is a new cryptocurrency used to settle all the payments in the ecosystem. Initially it will be an ERC-20 token deployed on Polygon mainnet and later bridged to our native blockchain for in chain payments.
 
 ## Getting started
 
@@ -68,6 +68,8 @@ $ truffle test test/Datagen.test.js
 
 - Many contracts have a comment section you must read to test them in the correct way.
 - If there is a time manipulation of the blockchian in the test you need to restart the blockchain to get it pass every time you run a test, for this reason some tests need to be done one by one.
+
+Check the [API documentation](https://github.com/Datagen-Project/DataGen-Smart-Contracts/wiki/Smart-Contracts-API) for more info on the code.
 
 ## Licensing
 
