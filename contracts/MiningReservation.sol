@@ -6,9 +6,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract MiningReservation is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
+    using SafeERC20 for IERC20;
 
     struct MiningLogicManagerAddressInfo {
         address[] MiningLogicManagerAddress;
@@ -179,7 +181,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
             new_percent = miningLogicInfo[msg.sender].percent;
         }
         totalStakeAmount += amount;
-        dataGen.transferFrom(msg.sender, address(this), amount);
+        dataGen.safeTransferFrom(msg.sender, address(this), amount);
     }
 
     /*
@@ -265,7 +267,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         }
         for (uint256 i = 0; i < stakerCount; i++) {
             address stakerAddr = stakers[i];
-            dataGen.transfer(stakerAddr, stakeAmount[stakerAddr]);
+            dataGen.safeTransfer(stakerAddr, stakeAmount[stakerAddr]);
             voteInfo[stakerAddr] = 0;
             stakeAmount[stakerAddr] = 0;
             stakers[i] = deadAddr;
@@ -344,7 +346,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
             require(balance >= transferAmount, "Wrong amount to transfer");
             for (uint256 i = 0; i < countMiningLogicManagerAddress; i++) {
                 uint256 amount = (transferAmount * percent[i]) / 100;
-                dataGen.transfer(MiningLogicManagerAddress[i], amount);
+                dataGen.safeTransfer(MiningLogicManagerAddress[i], amount);
             }
         }
     }

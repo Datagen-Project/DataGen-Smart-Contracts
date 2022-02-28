@@ -6,9 +6,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract RetailPrivateSale is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
+	using SafeERC20 for IERC20;
 
     /* the maximum amount of tokens to be sold */
 	uint256 public constant maxGoal = 150000 * (10**18);
@@ -93,7 +95,7 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 			amountUSDC = discountPrice + fullPrice;
 		}
 
-		usdc.transferFrom(msg.sender, address(this), amountUSDC);
+		usdc.safeTransferFrom(msg.sender, address(this), amountUSDC);
 
 		if( balanceOfDG[msg.sender] == 0 ) {
 			investers[invester_count] = msg.sender;
@@ -128,20 +130,20 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 			uint256 balance = tokenReward.balanceOf(address(this));
 			if( balance < amount ) continue;
 			balanceOfDG[invester] = 0;
-			tokenReward.transfer(invester, amount);
+			tokenReward.safeTransfer(invester, amount);
 		}
 	}
 
 	function withdrawUSDC() external onlyOwner {
 		uint256 balance = usdc.balanceOf(address(this));
 		require(balance > 0, "Balance is zero.");
-		usdc.transfer(owner(), balance);
+		usdc.safeTransfer(owner(), balance);
 	}
 
 	function withdrawDataGen() external onlyOwner afterClosed{
 		uint256 balance = tokenReward.balanceOf(address(this));
 		require(balance > 0, "Balance is zero.");
 		uint256 balanceMinusToClaim = balance - amountRaisedDG;
-		tokenReward.transfer(owner(), balanceMinusToClaim);
+		tokenReward.safeTransfer(owner(), balanceMinusToClaim);
 	}
 }
