@@ -22,10 +22,10 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     uint256 public multipler = 1;
 
     /* Min release rate */
-    uint256 public minReleaseRate = 7125 * 10**16; //71.25 DG
+    uint256 public constant minReleaseRate = 7125 * 10**16; //71.25 DG
 
     /* Available at first */
-    uint256 public startAmount = 4560 * (10**18);
+    uint256 public constant startAmount = 4560 * (10**18);
     uint256 public beginAmount = 4560 * (10**18);
 
     /* Votation time*/
@@ -46,7 +46,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
 
     address public voteSetter = 0x000000000000000000000000000000000000dEaD;
     /* Votation address set time*/
-    uint256 public voteOption = 2;
+    uint256 public constant voteOption = 2;
 
     /* the address of the token contract */
     IERC20 public dataGen;
@@ -55,7 +55,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     address[] MiningLogicManagerAddress;
     uint256[] percent;
     uint256 countMiningLogicManagerAddress;
-    address deadAddr = 0x000000000000000000000000000000000000dEaD;
+    address constant deadAddr = 0x000000000000000000000000000000000000dEaD;
     address[] newMiningLogicManagerAddress;
     uint256[] new_percent;
 

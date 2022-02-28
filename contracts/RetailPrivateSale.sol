@@ -25,7 +25,7 @@ contract RetailPrivateSale is Ownable, ReentrancyGuard {
 
 	/* the price per #DG (in USDC) */
 	/* there are different prices in different time intervals */
-	uint256 public price = 7 * 10**5;
+	uint256 public constant price = 7 * 10**5;
 
 	address public USDC_ADDRESS;
 

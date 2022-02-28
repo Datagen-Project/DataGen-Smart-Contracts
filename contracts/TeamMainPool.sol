@@ -27,9 +27,9 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
   /* 1st Lock time 1st of May 2022 GMT Timezone */
   uint256 public constant lockTime1 = 1641336000;
   /* 1st Lock time 1st of May 2023 GMT Timezone */
-  uint256 public lockTime2 = lockTime1 + 1 minutes;
+  uint256 public constant lockTime2 = lockTime1 + 1 minutes;
   /* 1st Lock time 31st of December 2023 GMT Timezone */
-  uint256 public lockTime3 = lockTime2 + 1 minutes;
+  uint256 public constant lockTime3 = lockTime2 + 1 minutes;
   /* Left token after sending rewards */
   uint256 public leftAmount;
   /* the address of the token contract */
