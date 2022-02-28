@@ -49,7 +49,7 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
     leftAmount = totalAmount;
   }
 
-  function sendSalary(address _receiver, uint256 _amount) external onlyOwner {
+  function setSalary(address _receiver, uint256 _amount) external onlyOwner {
     require(_receiver != deadAddress, "You are sending tokens to dead Address.");
     require(leftAmount >= _amount, "Left token is not enough.");
     if(isSalaryReceiver[_receiver] != true) {
