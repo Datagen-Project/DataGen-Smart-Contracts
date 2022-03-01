@@ -5,7 +5,8 @@ const {
     expectEvent,  // Assertions for emitted events
     expectRevert, // Assertions for transactions that should fail
     BN,
-} = require('openzeppelin-test-helpers');
+    time,
+} = require('@openzeppelin/test-helpers');
 
 require('chai').should();
 
@@ -13,7 +14,7 @@ contract('CoFounderPool', accounts => {
     let deployedTime = 0;
     beforeEach(async function() {
         let datagen_contract;
-        this.token = await DataGen.new();
+        this.DataGenToken = await DataGen.new();
 
         
 
@@ -22,11 +23,10 @@ contract('CoFounderPool', accounts => {
         deployedTime = deployedBlock.timestamp;
         
         this.contractDeployed = await CoFounderPool.deployed(); //use when nedd to test migration parameters
-        this.contractClosed = await CoFounderPool.new(this.token.address,
-            "0xAb9a7647f6f266C8dD77c41C1faaa0c4ce489B12",
-            "0xBEE7764727e7FeACC9C640Ae6AC0809404C491Fa",
-            deployedTime); 
+        this.contractClosed = await CoFounderPool.new(this.DataGenToken.address, accounts[4], accounts[5], deployedTime); 
         
+        const fundDG = new BN('3000000000000000000000000');
+        await this.DataGenToken.transfer(this.contractClosed.address, fundDG, {from: accounts[0]});
     });
 
     describe('Initialise CoFounderPool attributes', function() {
@@ -53,26 +53,46 @@ contract('CoFounderPool', accounts => {
     describe('releaseDataGen', async function() {
         it('has to revert if the contract has zero #DG token', async function() {
             await expectRevert (
-                this.contractClosed.releaseDataGen(),
+                this.contractDeployed.releaseDataGen(),
                 'Zero #DG left.'
             );
         });
-        it('has to revert if the contract has less than 2700000 #DG token', async function() {
-            this.token.mint( this.contractClosed.address, 10000);
-            await expectRevert (
-                this.contractClosed.releaseDataGen(),
-                'Beginning amount already released to co-founders'
-            );
-        });
         it('has to revert if the release 2+ times a day', async function() {
-            this.contractClosed.setReleaseTime();
-            this.token.mint( this.contractClosed.address, "2699999000000000000000000");
+            time.increase(time.duration.days(1095));
             this.contractClosed.releaseDataGen();
             await expectRevert (
                 this.contractClosed.releaseDataGen(),
                 'Already released.'
             );
         });
-        
+        it('has to release the correct amount first release', async function() {
+            this.contractClosed.releaseDataGen();
+
+            const balanceAccount4 = await this.DataGenToken.balanceOf(accounts[4]);
+            const balanceAccount5 = await this.DataGenToken.balanceOf(accounts[5]);
+
+            const totalAmount = balanceAccount4.add(balanceAccount5);
+
+            totalAmount.toString().should.equal('300000000000000000000000');
+        });
+        it.only('has to release the correct amount, first release + 10 release second release', async function() {
+            await this.contractClosed.releaseDataGen();
+
+            await time.increase(time.duration.days(1095));
+            await this.contractClosed.releaseDataGen();
+
+            for (i = 0; i < 9; i++) {
+                await time.increase(time.duration.days(1));
+                await this.contractClosed.releaseDataGen();
+            }
+
+            const balanceAccount4 = await this.DataGenToken.balanceOf(accounts[4]);
+            const balanceAccount5 = await this.DataGenToken.balanceOf(accounts[5]);
+
+            const totalAmount = balanceAccount4.add(balanceAccount5);
+
+            totalAmount.toString().should.equal('305400000000000000000000');
+        });
     });
 });
+
