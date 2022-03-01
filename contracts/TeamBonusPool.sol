@@ -41,7 +41,7 @@ contract TeamBonusPool is Ownable, ReentrancyGuard {
     leftAmount = totalAmount;
   }
 
-  function sendBonus(address _receiver, uint256 _amount) external onlyOwner {
+  function setBonus(address _receiver, uint256 _amount) external onlyOwner {
     require(_receiver != deadAddress, "You are sending tokens to dead Address.");
     require(leftAmount >= _amount, "Left token is not enough.");
     if(isBonusReceiver[_receiver] != true) {
@@ -58,15 +58,14 @@ contract TeamBonusPool is Ownable, ReentrancyGuard {
   }
 
   function releaseBonus() external nonReentrant {
-    require(block.timestamp >= lockTime, "Pool is locked until 1st of February 2022.");
+    require(block.timestamp >= lockTime, "Pool is locked until 1st of August 2022.");
     require(isBonusReceiver[msg.sender] == true, "You are not bonus Receiver.");
     require(leftBonus[msg.sender] > 0, "You don't have enough funds.");
     
     uint256 epochs = block.timestamp.sub(lockTime).div(30 * 24 * 3600).add(1);
     if (epochs > 10) epochs = 10;
 
-    uint256 releaseAmount = bonus[msg.sender].div(10);
-    uint256 leftBonusAmount = bonus[msg.sender].sub(releaseAmount.mul(epochs));
+    uint256 leftBonusAmount = bonus[msg.sender].sub(bonus[msg.sender].mul(epochs).div(10));
     
     require(leftBonus[msg.sender] > leftBonusAmount, "Already released.");
     uint256 transferAmount = leftBonus[msg.sender].sub(leftBonusAmount);
@@ -79,7 +78,7 @@ contract TeamBonusPool is Ownable, ReentrancyGuard {
     }
   }
 
-  function checkBouns(address _checker) public view returns (uint256) {
+  function checkBonus(address _checker) public view returns (uint256) {
     require(isBonusReceiver[_checker], "You are not Bonus Receiver.");
     return leftBonus[_checker];
   }
