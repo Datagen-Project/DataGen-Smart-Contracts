@@ -34,7 +34,6 @@ contract MiningReservation is Ownable, ReentrancyGuard {
 
     /* votation staking*/
     mapping(address => uint256) stakeAmount;
-    mapping(uint256 => address) stakers;
     uint256 public totalStakeAmount;
     uint256 public stakerCount = 0;
 
@@ -58,6 +57,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     address deadAddr = 0x000000000000000000000000000000000000dEaD;
     address[] newMiningLogicManagerAddress;
     uint256[] new_percent;
+    uint256 public gotWinner;
 
     event SetMiningLogicManagerAddress(
         address indexed user,
@@ -100,21 +100,18 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         _;
     }
 
+    modifier afterWinner() {
+        require(gotWinner == 1, "You can claim staked token after gotWinner and before starts new votation");
+        _;
+    }
+
     modifier onlyVoteSetter() {
         require(msg.sender == voteSetter, "you are not setter");
         _;
     }
 
     modifier onlyStaker() {
-        uint256 found = 0;
-        for (uint256 i = 0; i < stakerCount; i++) {
-            address stakerAddr = stakers[i];
-            if (msg.sender == stakerAddr) {
-                found = 1;
-                break;
-            }
-        }
-        require(found == 1, "you are not staker");
+        require(stakeAmount[msg.sender] > 20, "you are not staker");
         _;
     }
 
@@ -125,6 +122,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         MiningLogicManagerAddress.push(deadAddr);
         percent.push(100);
         newMiningLogicManagerAddress.push(deadAddr);
+        gotWinner = 0;
     }
 
     function setMiningLogicManagerAddress(
@@ -163,7 +161,6 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         }
 
         if (stakeAmount[msg.sender] == 0) {
-            stakers[stakerCount] = msg.sender;
             stakerCount++;
         }
         stakeAmount[msg.sender] += amount;
@@ -177,6 +174,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
             newMiningLogicManagerAddress = miningLogicInfo[msg.sender]
                 .MiningLogicManagerAddress;
             new_percent = miningLogicInfo[msg.sender].percent;
+            gotWinner = 0;
         }
         totalStakeAmount += amount;
         dataGen.transferFrom(msg.sender, address(this), amount);
@@ -255,6 +253,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         nonReentrant
         onlyStaker
         returns (uint256) {
+        require(stakerCount > 0,"Already got new winner");
         uint256 winnerDGCount = 0;
         uint256 winnerInfo;
         for (uint256 i = 1; i <= voteOption; i++) {
@@ -262,14 +261,6 @@ contract MiningReservation is Ownable, ReentrancyGuard {
                 winnerDGCount = totalVotedDG[i];
                 winnerInfo = i;
             }
-        }
-        for (uint256 i = 0; i < stakerCount; i++) {
-            address stakerAddr = stakers[i];
-            dataGen.transfer(stakerAddr, stakeAmount[stakerAddr]);
-            voteInfo[stakerAddr] = 0;
-            stakeAmount[stakerAddr] = 0;
-            stakers[i] = deadAddr;
-            miningLogicInfo[stakerAddr].voteStartTime = 0;
         }
 
         for (uint256 i = 1; i <= voteOption; i++) {
@@ -304,7 +295,17 @@ contract MiningReservation is Ownable, ReentrancyGuard {
                 new_percent
             );
         }
+        gotWinner = 1;
         return winnerInfo;
+    }
+
+    function claimStakedToken() public nonReentrant afterWinner {
+        require( stakeAmount[msg.sender] > 0, "You are not staker or you already receive your staked DG token");
+        require( dataGen.balanceOf(address(this)) >= stakeAmount[msg.sender], "Not enough #DG left");
+        dataGen.transfer(msg.sender, stakeAmount[msg.sender]);
+        voteInfo[msg.sender] = 0;
+        stakeAmount[msg.sender] = 0;
+        miningLogicInfo[msg.sender].voteStartTime = 0;
     }
 
     function releaseDataGen() public nonReentrant {
