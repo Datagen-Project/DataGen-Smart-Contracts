@@ -6,9 +6,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract MiningReservation is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
+    using SafeERC20 for IERC20;
 
     struct MiningLogicManagerAddressInfo {
         address[] MiningLogicManagerAddress;
@@ -22,10 +24,10 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     uint256 public multipler = 1;
 
     /* Min release rate */
-    uint256 public minReleaseRate = 7125 * 10**16; //71.25 DG
+    uint256 public constant minReleaseRate = 7125 * 10**16; //71.25 DG
 
     /* Available at first */
-    uint256 public startAmount = 4560 * (10**18);
+    uint256 public constant startAmount = 4560 * (10**18);
     uint256 public beginAmount = 4560 * (10**18);
 
     /* Votation time*/
@@ -45,7 +47,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
 
     address public voteSetter = 0x000000000000000000000000000000000000dEaD;
     /* Votation address set time*/
-    uint256 public voteOption = 2;
+    uint256 public constant voteOption = 2;
 
     /* the address of the token contract */
     IERC20 public dataGen;
@@ -54,7 +56,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     address[] MiningLogicManagerAddress;
     uint256[] percent;
     uint256 countMiningLogicManagerAddress;
-    address deadAddr = 0x000000000000000000000000000000000000dEaD;
+    address constant deadAddr = 0x000000000000000000000000000000000000dEaD;
     address[] newMiningLogicManagerAddress;
     uint256[] new_percent;
     uint256 public gotWinner;
@@ -177,7 +179,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
             gotWinner = 0;
         }
         totalStakeAmount += amount;
-        dataGen.transferFrom(msg.sender, address(this), amount);
+        dataGen.safeTransferFrom(msg.sender, address(this), amount);
     }
 
     /*
@@ -295,6 +297,9 @@ contract MiningReservation is Ownable, ReentrancyGuard {
                 new_percent
             );
         }
+        else {
+            winnerInfo = 10;
+        }
         gotWinner = 1;
         return winnerInfo;
     }
@@ -345,7 +350,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
             require(balance >= transferAmount, "Wrong amount to transfer");
             for (uint256 i = 0; i < countMiningLogicManagerAddress; i++) {
                 uint256 amount = (transferAmount * percent[i]) / 100;
-                dataGen.transfer(MiningLogicManagerAddress[i], amount);
+                dataGen.safeTransfer(MiningLogicManagerAddress[i], amount);
             }
         }
     }

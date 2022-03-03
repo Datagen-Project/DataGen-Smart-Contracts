@@ -12,8 +12,8 @@ contract DataGen is Ownable, IERC20 {
 
     uint256 private _totalSupply;
 
-    string private _name="DataGen";
-    string private _symbol="#DG";
+    string private constant _name="DataGen";
+    string private constant _symbol="#DG";
 
     /**
      * @dev Sets the values for {name} and {symbol}.

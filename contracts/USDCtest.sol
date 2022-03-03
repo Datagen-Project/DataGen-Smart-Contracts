@@ -12,8 +12,8 @@ contract USDCtest is Ownable, IERC20 {
 
     uint256 private _totalSupply;
 
-    string private _name="USD Coin";
-    string private _symbol="USDC";
+    string private constant _name="USD Coin";
+    string private constant _symbol="USDC";
 
     /**
      * @dev Sets the values for {name} and {symbol}.
