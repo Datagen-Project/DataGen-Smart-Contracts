@@ -41,7 +41,7 @@ contract TeamBonusPool is Ownable, ReentrancyGuard {
     leftAmount = totalAmount;
   }
 
-  function sendBonus(address _receiver, uint256 _amount) external onlyOwner {
+  function setBonus(address _receiver, uint256 _amount) external onlyOwner {
     require(_receiver != deadAddress, "You are sending tokens to dead Address.");
     require(leftAmount >= _amount, "Left token is not enough.");
     if(isBonusReceiver[_receiver] != true) {
