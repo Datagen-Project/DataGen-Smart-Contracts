@@ -33,7 +33,7 @@ contract DataGen is Ownable, IERC20 {
     /**
      * @dev Returns the name of the token.
      */
-    function name() external view returns (string memory) {
+    function name() external pure returns (string memory) {
         return _name;
     }
 
@@ -41,7 +41,7 @@ contract DataGen is Ownable, IERC20 {
      * @dev Returns the symbol of the token, usually a shorter version of the
      * name.
      */
-    function symbol() external view returns (string memory) {
+    function symbol() external pure returns (string memory) {
         return _symbol;
     }
 
