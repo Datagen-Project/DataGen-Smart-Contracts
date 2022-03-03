@@ -2,8 +2,12 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract AirDrop {
+
+    using SafeERC20 for IERC20;
+
     /* the address of the token contract */
     IERC20 public dataGen;
     address public owner;
@@ -49,7 +53,7 @@ contract AirDrop {
         if(recipient == address(0)) return;
 
         if(tokensAvailable() >= tokensToSend) {
-            dataGen.transfer(recipient, tokensToSend);
+            dataGen.safeTransfer(recipient, tokensToSend);
             emit TransferredToken(recipient, valueToPresent);
         } else {
             emit FailedTransfer(recipient, valueToPresent); 
@@ -63,6 +67,6 @@ contract AirDrop {
     function withdraw() external onlyOwner {
         uint256 balance = tokensAvailable();
         require (balance > 0);
-        dataGen.transfer(owner, balance);
+        dataGen.safeTransfer(owner, balance);
     }
 }

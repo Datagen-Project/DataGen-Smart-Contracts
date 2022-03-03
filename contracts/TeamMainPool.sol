@@ -18,9 +18,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract TeamMainPool is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
+  using SafeERC20 for IERC20;
   
   /* Total token amount in the Team main Pool */
   uint256 public constant totalAmount = 1700000 * (10**18);
@@ -73,14 +75,14 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
       uint256 transferAmount = mainSalary[msg.sender].div(10);
       require(balance >= transferAmount, "Wrong amount to transfer");
       require(leftSalary[msg.sender] > mainSalary[msg.sender].sub(transferAmount), "");
-      dataGen.transfer(msg.sender, transferAmount);
+      dataGen.safeTransfer(msg.sender, transferAmount);
       leftSalary[msg.sender] = leftSalary[msg.sender] - transferAmount;
     }
     else if(block.timestamp <lockTime2) {
       uint256 firstReleaseAmount = mainSalary[msg.sender].div(10);
       if(leftSalary[msg.sender] > mainSalary[msg.sender].sub(firstReleaseAmount)) {
         uint256 releaseLeft = leftSalary[msg.sender].sub(mainSalary[msg.sender].sub(firstReleaseAmount));
-        dataGen.transfer(msg.sender, releaseLeft);
+        dataGen.safeTransfer(msg.sender, releaseLeft);
         leftSalary[msg.sender] = leftSalary[msg.sender].sub(releaseLeft);
       }
 
@@ -96,7 +98,7 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
       if(transferAmount > 0) {
         require(leftSalary[msg.sender] >= transferAmount, "Wrong amount to transfer");
         require(balance >= transferAmount, "Wrong amount to transfer");
-        dataGen.transfer(address(msg.sender), transferAmount);
+        dataGen.safeTransfer(address(msg.sender), transferAmount);
         leftSalary[msg.sender] = leftSalary[msg.sender] - transferAmount;
       }
     }
@@ -104,7 +106,7 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
       uint256 secondReleaseAmount = mainSalary[msg.sender].div(10).mul(4);
       if(leftSalary[msg.sender] > mainSalary[msg.sender].sub(secondReleaseAmount)) {
         uint256 releaseLeft = leftSalary[msg.sender].sub(mainSalary[msg.sender].sub(secondReleaseAmount));
-        dataGen.transfer(msg.sender, releaseLeft);
+        dataGen.safeTransfer(msg.sender, releaseLeft);
         leftSalary[msg.sender] = leftSalary[msg.sender].div(releaseLeft);
       }
 
@@ -120,7 +122,7 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
       if(transferAmount > 0) {
         require(leftSalary[msg.sender] >= transferAmount, "Wrong amount to transfer");
         require(balance >= transferAmount, "Wrong amount to transfer");
-        dataGen.transfer(address(msg.sender), transferAmount);
+        dataGen.safeTransfer(address(msg.sender), transferAmount);
         leftSalary[msg.sender] = leftSalary[msg.sender] - transferAmount;
       }   
     }
@@ -128,7 +130,7 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
       uint256 thirdReleaseAmount = mainSalary[msg.sender].div(10).mul(7);
       if(leftSalary[msg.sender] > mainSalary[msg.sender].sub(thirdReleaseAmount)) {
         uint256 releaseLeft = leftSalary[msg.sender].sub(mainSalary[msg.sender].sub(thirdReleaseAmount));
-        dataGen.transfer(msg.sender, releaseLeft);
+        dataGen.safeTransfer(msg.sender, releaseLeft);
         leftSalary[msg.sender] = leftSalary[msg.sender].div(releaseLeft);
       }
 
@@ -144,7 +146,7 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
       if(transferAmount > 0) {
         require(leftSalary[msg.sender] >= transferAmount, "Wrong amount to transfer");
         require(balance >= transferAmount, "Wrong amount to transfer");
-        dataGen.transfer(address(msg.sender), transferAmount);
+        dataGen.safeTransfer(address(msg.sender), transferAmount);
         leftSalary[msg.sender] = leftSalary[msg.sender] - transferAmount;
       }   
     }
