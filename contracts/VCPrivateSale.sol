@@ -6,9 +6,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract VCPrivateSale is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
+	using SafeERC20 for IERC20;
 
     /* the maximum amount of tokens to be sold */
 	uint256 public constant maxGoal = 2350000 * (10**18);
@@ -120,7 +122,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 			amountUSDC = amountFirstPrice + amountSecondPrice + amountThirdPrice;
 		}
 
-		usdc.transferFrom(msg.sender, address(this), amountUSDC);
+		usdc.safeTransferFrom(msg.sender, address(this), amountUSDC);
 
 		if( totalBalanceOfDG[msg.sender] == 0 ) {
 			investers[invester_count] = msg.sender;
@@ -163,7 +165,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 				maxAmount = totalBalanceOfDG[invester].div(10);
 				amount = maxAmount.sub(totalBalanceOfDG[invester].sub(balanceOfDG[invester]));
 				balanceOfDG[invester] = balanceOfDG[invester].sub(amount);
-				tokenReward.transfer(invester, amount);
+				tokenReward.safeTransfer(invester, amount);
 				firstTime = false;
 			} 
 			if (block.timestamp >= lockTime) {
@@ -174,7 +176,7 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 				amount = maxAmount.sub((totalBalanceOfDG[invester] - totalBalanceOfDG[invester].div(10)).sub(balanceOfDG[invester]));
 
 				balanceOfDG[invester] = balanceOfDG[invester].sub(amount);
-				tokenReward.transfer(invester, amount);
+				tokenReward.safeTransfer(invester, amount);
 			}
 		}
 	}
@@ -182,13 +184,13 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 	function withdrawUSDC() external onlyOwner {
 		uint256 balance = usdc.balanceOf(address(this));
 		require(balance > 0, "Balance is zero.");
-		usdc.transfer(owner(), balance);
+		usdc.safeTransfer(owner(), balance);
 	}
 
 	function withdrawDataGen() external onlyOwner afterClosed{
 		uint256 balance = tokenReward.balanceOf(address(this));
 		require(balance > 0, "Balance is zero.");
 		uint256 balacneMinusToClaim = balance - amountRaisedDG;
-		tokenReward.transfer(owner(), balacneMinusToClaim);
+		tokenReward.safeTransfer(owner(), balacneMinusToClaim);
 	}
 }

@@ -15,11 +15,7 @@ require("chai").should();
 /* Test functions 
 
 @dev  In order to test this functionalities you must add this functions in VCPrivateSale.sol also you need 
-to set accounts[9] as deadAddr and as voteSetter in the contract 
-
-    function getStakerTest(uint256 _index) view external returns(address) {
-        return stakers[_index];
-    }
+to set accounts[9] as deadAddr and as voteSetter in the contract.
 
     function getStakeAmountTest(address _addr) view external returns(uint256) {
         return stakeAmount[_addr];
@@ -698,7 +694,7 @@ contract("MiningReservation", accounts => {
 
             winnerInfo.toString().should.equal("2");
         });
-        it("has to redistribute the DG stked to stakers", async function() {
+        it("has to redistribute the DG staked to stakers", async function() {
             const address = new Array (accounts[5], accounts[6]);
             const percent = new Array (49, 51);
             const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
@@ -971,4 +967,37 @@ contract("MiningReservation", accounts => {
             balanceOfDeadAddress.toString().should.equal("7489800000000000000000000");
         });
     });
+    describe('claimStakedToken function', function() {
+        it.only('has to claim the correct amount of #DG by a staker', async function() {
+            const address = new Array (accounts[5], accounts[6]);
+            const percent = new Array (49, 51);
+            const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
+
+            const staked = new BN("100000000000000000000000");
+            const staked2 = new BN("50000000000000000000000")
+
+            await this.MiningReservation.voteOptionSet(address, percent, start, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked, {from: accounts[4]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[5]});
+            await this.DatagenToken.approve(this.MiningReservation.address, staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked2, {from: accounts[5]});
+            await this.MiningReservation.stake(staked2, {from: accounts[6]});
+            await this.MiningReservation.stake(staked, {from: accounts[4]});
+
+            time.increase(time.duration.days(5));
+
+            await this.MiningReservation.vote(2, {from: accounts[4]});
+            await this.MiningReservation.vote(2, {from: accounts[5]});
+            await this.MiningReservation.vote(1, {from: accounts[6]});
+
+            time.increase(time.duration.days(31));
+
+            await this.MiningReservation.getWinner({from: accounts[4]});
+
+            await this.MiningReservation.claimStakedToken({from: accounts[4]});
+            const balanceAccount4 = await this.DatagenToken.balanceOf(accounts[4]);
+
+            balanceAccount4.toString().should.equal('200000000000000000000000');
+        });
+    })
 }); 

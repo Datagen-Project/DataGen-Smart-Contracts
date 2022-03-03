@@ -14,9 +14,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract TeamBonusPool is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
+  using SafeERC20 for IERC20;
   
   /* Total token amount in the Bonus Pool */
   uint256 public constant totalAmount = 300000 * (10**18);
@@ -73,7 +75,7 @@ contract TeamBonusPool is Ownable, ReentrancyGuard {
     if(transferAmount > 0) {
       require(leftBonus[msg.sender] >= transferAmount, "Wrong amount to transfer");
       require(balance >= transferAmount, "Wrong amount to transfer");
-      dataGen.transfer(address(msg.sender), transferAmount);
+      dataGen.safeTransfer(address(msg.sender), transferAmount);
       leftBonus[msg.sender] = leftBonus[msg.sender] - transferAmount;
     }
   }

@@ -16,9 +16,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract CoFounderPool is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
+  using SafeERC20 for IERC20;
   
   /* Token amount for co-founders */
   uint256 public constant cfAmount = 3000000 * (10**18);
@@ -27,7 +29,7 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
   /* Release start time after deployed the token (1,095 days later)*/
   uint256 public releaseStart;
   /* Available at first(both of Angela & Luca) */
-  uint256 public beginAmount = 300000 * (10**18);
+  uint256 public constant beginAmount = 300000 * (10**18);
   /* the address of the token contract */
   IERC20 public dataGen;
   /* the address of the Angela's wallet */
@@ -83,8 +85,8 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
         require(balance >= transferAmount, "Wrong amount to transfer");
         uint256 half = transferAmount.div(2);
         uint256 otherHalf = transferAmount.sub(half);
-        dataGen.transfer(aWallet, half);
-        dataGen.transfer(lWallet, otherHalf);
+        dataGen.safeTransfer(aWallet, half);
+        dataGen.safeTransfer(lWallet, otherHalf);
       }
     }
   }
@@ -95,15 +97,15 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
     if(totalBalance >= cfAmount){
       uint256 half = beginAmount.div(2);
       uint256 otherHalf = beginAmount.sub(half);
-      dataGen.transfer(aWallet, half);
-      dataGen.transfer(lWallet, otherHalf);
+      dataGen.safeTransfer(aWallet, half);
+      dataGen.safeTransfer(lWallet, otherHalf);
     }
     else {
       uint256 firstReleaseAmount = totalBalance.sub(rcfAmount);
       uint256 half = firstReleaseAmount.div(2);
       uint256 otherHalf = firstReleaseAmount.sub(half);
-      dataGen.transfer(aWallet, half);
-      dataGen.transfer(lWallet, otherHalf);
+      dataGen.safeTransfer(aWallet, half);
+      dataGen.safeTransfer(lWallet, otherHalf);
     }
   }
 

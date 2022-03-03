@@ -14,9 +14,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract ReservedPool is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
+  using SafeERC20 for IERC20;
   
   /* First release tokens */
   uint256 public constant frAmount = 750000 * (10**18);
@@ -62,9 +64,9 @@ contract ReservedPool is Ownable, ReentrancyGuard {
         require(balance.sub(srAmount) >= transferAmount, "Wrong amount to transfer");
         uint256 realAmount = transferAmount / companyWalletLength;
         for( uint i = 0; i < companyWalletLength - 1; i++ ) {
-          dataGen.transfer(companyWallet[i], realAmount);
+          dataGen.safeTransfer(companyWallet[i], realAmount);
         }
-        dataGen.transfer(companyWallet[companyWalletLength - 1], transferAmount - transferAmount * (companyWalletLength-1) / companyWalletLength);
+        dataGen.safeTransfer(companyWallet[companyWalletLength - 1], transferAmount - transferAmount * (companyWalletLength-1) / companyWalletLength);
       }
     }
     else {
@@ -74,9 +76,9 @@ contract ReservedPool is Ownable, ReentrancyGuard {
         uint256 realtransferAmount = balance.sub(srAmount);
         uint256 realAmount = realtransferAmount / companyWalletLength;
         for( uint i = 0; i < companyWalletLength - 1; i++ ) {
-          dataGen.transfer(companyWallet[i], realAmount);
+          dataGen.safeTransfer(companyWallet[i], realAmount);
         }
-        dataGen.transfer(companyWallet[companyWalletLength - 1], realtransferAmount - realAmount * (companyWalletLength-1));
+        dataGen.safeTransfer(companyWallet[companyWalletLength - 1], realtransferAmount - realAmount * (companyWalletLength-1));
       }
 
       uint256 epochs = (block.timestamp.sub(srStart)).div(30 * 24 * 3600).add(1);
@@ -90,9 +92,9 @@ contract ReservedPool is Ownable, ReentrancyGuard {
         uint256 realtransferAmount = transferAmount;
         uint256 realAmount = realtransferAmount / companyWalletLength;
         for( uint i = 0; i < companyWalletLength - 1; i++ ) {
-          dataGen.transfer(companyWallet[i], realAmount);
+          dataGen.safeTransfer(companyWallet[i], realAmount);
         }
-        dataGen.transfer(companyWallet[companyWalletLength - 1], realtransferAmount - realtransferAmount * (companyWalletLength-1) / companyWalletLength);
+        dataGen.safeTransfer(companyWallet[companyWalletLength - 1], realtransferAmount - realtransferAmount * (companyWalletLength-1) / companyWalletLength);
       }
     }
 	}
