@@ -27,7 +27,7 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
   /* Release start time after deployed the token (1,095 days later)*/
   uint256 public releaseStart;
   /* Available at first(both of Angela & Luca) */
-  uint256 public beginAmount = 300000 * (10**18);
+  uint256 public constant beginAmount = 300000 * (10**18);
   /* the address of the token contract */
   IERC20 public dataGen;
   /* the address of the Angela's wallet */
