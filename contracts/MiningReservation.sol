@@ -305,7 +305,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
             );
         }
         else {
-            winnerInfo = -1;
+            winnerInfo = 10;
         }
         return winnerInfo;
     }
