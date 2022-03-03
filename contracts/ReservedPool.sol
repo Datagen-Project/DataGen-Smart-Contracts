@@ -55,9 +55,8 @@ contract ReservedPool is Ownable, ReentrancyGuard {
       uint256 epochs = block.timestamp.sub(frStart).div(30 * 24 * 3600).add(1);
       if (epochs > 12) epochs = 12;
 
-      uint256 releaseAmount = frAmount.div(12);
       uint256 balance = dataGen.balanceOf(address(this));
-      uint256 leftAmount = frAmount.sub(releaseAmount.mul(epochs));
+      uint256 leftAmount = frAmount.sub(frAmount.mul(epochs).div(12));
 
       require(balance.sub(srAmount) > leftAmount, "Already released.");
       uint256 transferAmount = balance.sub(srAmount).sub(leftAmount);
@@ -67,7 +66,7 @@ contract ReservedPool is Ownable, ReentrancyGuard {
         for( uint i = 0; i < companyWalletLength - 1; i++ ) {
           dataGen.safeTransfer(companyWallet[i], realAmount);
         }
-        dataGen.safeTransfer(companyWallet[companyWalletLength - 1], transferAmount - realAmount * (companyWalletLength-1));
+        dataGen.safeTransfer(companyWallet[companyWalletLength - 1], transferAmount - transferAmount * (companyWalletLength-1) / companyWalletLength);
       }
     }
     else {
@@ -85,8 +84,7 @@ contract ReservedPool is Ownable, ReentrancyGuard {
       uint256 epochs = (block.timestamp.sub(srStart)).div(30 * 24 * 3600).add(1);
       if (epochs > 24) epochs = 24;
 
-      uint256 releaseAmount = srAmount.div(24);
-      uint256 leftAmount = srAmount.sub(releaseAmount.mul(epochs));
+      uint256 leftAmount = srAmount.sub(srAmount.mul(epochs).div(24));
 
       require(balance > leftAmount, "Already released.");
       uint256 transferAmount = balance.sub(leftAmount);
@@ -96,7 +94,7 @@ contract ReservedPool is Ownable, ReentrancyGuard {
         for( uint i = 0; i < companyWalletLength - 1; i++ ) {
           dataGen.safeTransfer(companyWallet[i], realAmount);
         }
-        dataGen.safeTransfer(companyWallet[companyWalletLength - 1], realtransferAmount - realAmount * (companyWalletLength-1));
+        dataGen.safeTransfer(companyWallet[companyWalletLength - 1], realtransferAmount - realtransferAmount * (companyWalletLength-1) / companyWalletLength);
       }
     }
 	}

@@ -77,8 +77,7 @@ contract CoFounderPool is Ownable, ReentrancyGuard {
       uint256 epochs = block.timestamp.sub(releaseStart).div(24 * 3600).add(1);
       if (epochs > 5000) epochs = 5000;
 
-      uint256 releaseAmount = rcfAmount.div(5000);
-      uint256 leftAmount = rcfAmount.sub(releaseAmount.mul(epochs));
+      uint256 leftAmount = rcfAmount.sub(rcfAmount.mul(epochs).div(5000));
 
       require(balance > leftAmount, "Already released.");
       uint256 transferAmount = balance.sub(leftAmount);

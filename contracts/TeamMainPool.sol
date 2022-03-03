@@ -26,12 +26,14 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
   
   /* Total token amount in the Team main Pool */
   uint256 public constant totalAmount = 1700000 * (10**18);
-  /* 1st Lock time 1st of May 2022 GMT Timezone */
-  uint256 public constant lockTime1 = 1641336000;
-  /* 1st Lock time 1st of May 2023 GMT Timezone */
-  uint256 public constant lockTime2 = lockTime1 + 1 minutes;
-  /* 1st Lock time 31st of December 2023 GMT Timezone */
-  uint256 public constant lockTime3 = lockTime2 + 1 minutes;
+
+  /* 1st Lock time 1st of August 2022 GMT Timezone */
+  uint256 public lockTime1 = 1659312000;
+  /* 2nd Lock time 1st of August 2023 GMT Timezone */
+  uint256 public lockTime2 = 1690848000;
+  /* 3th Lock time 31st of March 2024 GMT Timezone */
+  uint256 public lockTime3 = 1711816800;
+
   /* Left token after sending rewards */
   uint256 public leftAmount;
   /* the address of the token contract */
@@ -86,11 +88,10 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
         leftSalary[msg.sender] = leftSalary[msg.sender].sub(releaseLeft);
       }
 
-      uint256 epochs = block.timestamp.sub(lockTime1).div(60).add(2);
+      uint256 epochs = block.timestamp.sub(lockTime1).div(30 * 24 * 3600).add(2);
       if (epochs > 4) epochs = 4;
 
-      uint256 releaseAmount = mainSalary[msg.sender].div(10);
-      uint256 leftSalaryAmount = mainSalary[msg.sender].sub(releaseAmount.mul(epochs));
+      uint256 leftSalaryAmount = mainSalary[msg.sender].sub(mainSalary[msg.sender].mul(epochs).div(10));
       
       require(leftSalary[msg.sender] > leftSalaryAmount, "Already released.");
       uint256 transferAmount = leftSalary[msg.sender].sub(leftSalaryAmount);
@@ -103,18 +104,17 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
       }
     }
     else if(block.timestamp < lockTime3) {
-      uint256 secondReleaseAmount = mainSalary[msg.sender].div(10).mul(4);
+      uint256 secondReleaseAmount = mainSalary[msg.sender].mul(4).div(10);
       if(leftSalary[msg.sender] > mainSalary[msg.sender].sub(secondReleaseAmount)) {
         uint256 releaseLeft = leftSalary[msg.sender].sub(mainSalary[msg.sender].sub(secondReleaseAmount));
         dataGen.safeTransfer(msg.sender, releaseLeft);
         leftSalary[msg.sender] = leftSalary[msg.sender].div(releaseLeft);
       }
 
-      uint256 epochs = block.timestamp.sub(lockTime2).div(60).add(5);
+      uint256 epochs = block.timestamp.sub(lockTime2).div(30 * 24 * 3600).add(5);
       if (epochs > 7) epochs = 7;
 
-      uint256 releaseAmount = mainSalary[msg.sender].div(10);
-      uint256 leftSalaryAmount = mainSalary[msg.sender].sub(releaseAmount.mul(epochs));
+      uint256 leftSalaryAmount = mainSalary[msg.sender].sub(mainSalary[msg.sender].mul(epochs).div(10));
       
       require(leftSalary[msg.sender] > leftSalaryAmount, "Already released.");
       uint256 transferAmount = leftSalary[msg.sender].sub(leftSalaryAmount);
@@ -127,17 +127,17 @@ contract TeamMainPool is Ownable, ReentrancyGuard {
       }   
     }
     else {
-      uint256 thirdReleaseAmount = mainSalary[msg.sender].div(10).mul(7);
+      uint256 thirdReleaseAmount = mainSalary[msg.sender].mul(7).div(10);
       if(leftSalary[msg.sender] > mainSalary[msg.sender].sub(thirdReleaseAmount)) {
         uint256 releaseLeft = leftSalary[msg.sender].sub(mainSalary[msg.sender].sub(thirdReleaseAmount));
         dataGen.safeTransfer(msg.sender, releaseLeft);
         leftSalary[msg.sender] = leftSalary[msg.sender].div(releaseLeft);
       }
 
-      uint256 epochs = block.timestamp.sub(lockTime3).div(60).add(1);
+      uint256 epochs = block.timestamp.sub(lockTime3).div(30 * 24 * 3600).add(1);
       if (epochs > 48) epochs = 48;
 
-      uint256 releaseAmount = mainSalary[msg.sender].div(10).mul(3).div(48);
+      uint256 releaseAmount = mainSalary[msg.sender].mul(3).div(10).div(48);
       uint256 leftSalaryAmount = mainSalary[msg.sender].div(10).mul(3).sub(releaseAmount.mul(epochs));
       
       require(leftSalary[msg.sender] > leftSalaryAmount, "Already released.");
