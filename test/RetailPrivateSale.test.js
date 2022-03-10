@@ -18,7 +18,7 @@ require("chai").should();
 
 // function setAmountRaisedDGTest(uint256 _amountRaised) public {
 //     amountRaisedDG = _amountRaised;
-// }`
+// }
 
 // function setEndTimeTest(uint256 _endtime) public {
 //     endTime = _endtime;
@@ -271,7 +271,7 @@ contract("RetailPrivateSale", accounts => {
             await this.contractOpen.invest(investment, { from: accounts[4] });
 
             await this.contractOpen.setEndTimeTest(1631806094);
-            await this.contractOpen.claimDataGen({ from: accounts[4] });
+            await this.contractOpen.claimDataGen({ from: accounts[0] });
 
             const balanceOfDG = await this.DatagenToken.balanceOf(accounts[4]);
             balanceOfDG.toString().should.equal("15000000000000000000");
@@ -313,7 +313,7 @@ contract("RetailPrivateSale", accounts => {
                 "Distribution is off."
             );
         });
-        it("withdrawDataGen has to withdraw the correct amount and left enought DG to be claim by investors", async function () {
+        it.only("withdrawDataGen has to withdraw the correct amount and left enought DG to be claim by investors", async function () {
             const investment = new BN("15000000000000000000");
             const amountAlreadyRaised = new BN("15000000000000000000001");
             const fundDatagen = new BN("150000000000000000000000");
@@ -331,7 +331,7 @@ contract("RetailPrivateSale", accounts => {
             await this.contractOpen.withdrawDataGen({ from: accounts[0] });
             const balanceOfOwner = await this.DatagenToken.balanceOf(accounts[0]);
 
-            balanceOfOwner.toString().should.equal("14984969999999999999999999");
+            balanceOfOwner.toString().should.equal("29984969999999999999999999");
         });
     });
 });

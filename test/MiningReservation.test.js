@@ -823,7 +823,7 @@ contract("MiningReservation", accounts => {
 
             await this.MiningReservation.getWinner({from: accounts[4]});   
         });
-        it("has to be able to vote a second time after getWinner", async function() {
+        it.only("has to be able to vote a second time after getWinner", async function() {
             const address = new Array (accounts[5]);
             const percent = [100];
             const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
@@ -852,6 +852,10 @@ contract("MiningReservation", accounts => {
             time.increase(time.duration.days(31));
 
             await this.MiningReservation.getWinner({from: accounts[4]});
+
+            await this.MiningReservation.claimStakedToken({from: accounts[4]})
+            await this.MiningReservation.claimStakedToken({from: accounts[5]})
+            await this.MiningReservation.claimStakedToken({from: accounts[6]})
 
             const MiningLogicManagerAddress = await this.MiningReservation.getMiningLogicManagerAddressTest();
             
@@ -968,7 +972,7 @@ contract("MiningReservation", accounts => {
         });
     });
     describe('claimStakedToken function', function() {
-        it.only('has to claim the correct amount of #DG by a staker', async function() {
+        it('has to claim the correct amount of #DG by a staker', async function() {
             const address = new Array (accounts[5], accounts[6]);
             const percent = new Array (49, 51);
             const start = Math.floor(Date.now() / 1000) + 4 * 24 * 3600;
