@@ -256,6 +256,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
         onlyStaker
         returns (uint256) {
         require(stakerCount > 0,"Already got new winner");
+        require( gotWinner == 0, "Already got new winner");
         uint256 winnerDGCount = 0;
         uint256 winnerInfo;
         for (uint256 i = 1; i <= voteOption; i++) {
@@ -307,7 +308,7 @@ contract MiningReservation is Ownable, ReentrancyGuard {
     function claimStakedToken() public nonReentrant afterWinner {
         require( stakeAmount[msg.sender] > 0, "You are not staker or you already receive your staked DG token");
         require( dataGen.balanceOf(address(this)) >= stakeAmount[msg.sender], "Not enough #DG left");
-        dataGen.transfer(msg.sender, stakeAmount[msg.sender]);
+        dataGen.safeTransfer(msg.sender, stakeAmount[msg.sender]);
         voteInfo[msg.sender] = 0;
         stakeAmount[msg.sender] = 0;
         miningLogicInfo[msg.sender].voteStartTime = 0;
