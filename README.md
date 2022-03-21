@@ -29,7 +29,7 @@
 
 ##  Overview
 
-DataGen is a new cryptocurrency used to settle all the payments in the ecosystem. Initially it will be an ERC-20 token deployed on Polygon mainnet and later bridged to our native blockchain for in chain payments.
+DataGen is a new cryptocurrency used to settle all the payments in the ecosystem. Initially it will be an BEP-20 token deployed on BSC mainnet and later bridged to our native blockchain for in chain payments.
 
 ## Getting started
 
