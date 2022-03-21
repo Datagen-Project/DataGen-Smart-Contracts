@@ -26,8 +26,8 @@ contract USDCtest is Ownable, IERC20 {
      */
     constructor () {
         // Initial Minting to Owner
-        _balances[msg.sender] = 30000000 * (10 ** 6);
-        _totalSupply = 30000000 * (10 ** 6);
+        _balances[msg.sender] = 30000000 * (10 ** 18);
+        _totalSupply = 30000000 * (10 ** 18);
     }
 
     /**
@@ -55,7 +55,7 @@ contract USDCtest is Ownable, IERC20 {
      * {IERC20-balanceOf} and {IERC20-transfer}.
      */
     function decimals() external pure returns (uint8) {
-        return 6;
+        return 18;
     }
 
     /**
