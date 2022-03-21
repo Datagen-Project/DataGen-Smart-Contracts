@@ -26,9 +26,9 @@ contract VCPrivateSale is Ownable, ReentrancyGuard {
 
 	/* the price per #DG (in USDC) */
 	/* there are different prices in different time intervals */
-	uint256 public constant firstPrice = 7 * 10**5;
-	uint256 public constant secondPrice = 9 * 10**5;
-	uint256 public constant thirdPrice = 11 * 10**5;
+	uint256 public constant firstPrice = 7 * 10**17;
+	uint256 public constant secondPrice = 9 * 10**17;
+	uint256 public constant thirdPrice = 11 * 10**17;
 
 	/* a controll for the claimDataGen function */ 
 	bool firstTime = true;
