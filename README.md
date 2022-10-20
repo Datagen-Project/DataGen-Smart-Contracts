@@ -38,7 +38,7 @@ You could clone the repository and try the smart contracts in your local machine
 From your comand line:
 ```bash
 # Clone this repository 
-$ git clone gh repo clone https://github.com/Datagen-Project/DataGen-Smart-Contracts
+$ git clone https://github.com/Datagen-Project/DataGen-Smart-Contracts
 
 # Go into the repository
 $ cd DataGen-Smart-Contracts
